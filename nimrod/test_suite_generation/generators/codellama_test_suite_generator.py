@@ -71,7 +71,8 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                     modified_lines.append(f"    @Test\n")
                     modified_lines.append(f"    public void {temp_method}_001() throws Throwable {{\n")
                     modified_lines.append(f"        if (debug) {{\n")
-                    modified_lines.append(f"\"\"\"\n")
+                    modified_lines.append(f"            // test here\n")
+                    modified_lines.append(f"\"\"\"")
                 
                     with open(prompts_file, "w") as file:
                         file.writelines(modified_lines)
@@ -114,8 +115,17 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
         output_file_path = f"{dir}/{output_file_name}.txt"
         with open(output_file_path, "w") as f:
-            f.write(prompt + "\n" + output)
+            f.write(prompt + output)
 
+    def get_branch(self, input_jar, code_base, code_left, code_right, code_merge):
+        if 'base' in input_jar:
+            return code_base, "base"
+        if 'left' in input_jar:
+            return code_left, "left"
+        if 'right' in input_jar:
+            return code_right, "right"
+        if 'merge' in input_jar:
+            return code_merge, "merge"
 
     def reset_chat_module(self, chat_module):
         chat_module.reset_chat()
@@ -127,15 +137,18 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         lpath = "/home/nfab/dist/libs"
         model = "CodeLlama-7b-Instruct-hf-q4f16_1-MLC"
         lib = "CodeLlama-7b-Instruct-hf-q4f16_1-cuda.so"
-        outputs_dir = f"{output_path}"
         prompts_path = f"{output_path}/prompts.txt"
 
-        #code_base = f"/mnt/c/Users/natha/Downloads/mergedataset/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/source/UndertowEmbeddedServletContainerFactory_base.java"
+        code_base = f"/mnt/c/Users/natha/Downloads/mergedataset/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/source/UndertowEmbeddedServletContainerFactory_base.java"
         code_left = f"/mnt/c/Users/natha/Downloads/mergedataset/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/source/UndertowEmbeddedServletContainerFactory_left.java"
-        #code_right = f"/mnt/c/Users/natha/Downloads/mergedataset/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/source/UndertowEmbeddedServletContainerFactory_right.java"
-        #code_merge = f"/mnt/c/Users/natha/Downloads/mergedataset/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/source/UndertowEmbeddedServletContainerFactory_merge.java"
+        code_right = f"/mnt/c/Users/natha/Downloads/mergedataset/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/source/UndertowEmbeddedServletContainerFactory_right.java"
+        code_merge = f"/mnt/c/Users/natha/Downloads/mergedataset/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/source/UndertowEmbeddedServletContainerFactory_merge.java"
 
-        self.generate_prompts(prompts_path, class_name, methods, code_left)
+        code, branch = self.get_branch(input_jar, code_base, code_left, code_right, code_merge)
+        print (f"Branch: {branch}")
+
+        self.generate_prompts(prompts_path, class_name, methods, code)
+
         prompts_list = self.read_prompts(prompts_path)
         
         cm = self.create_chat_module(mpath, lpath, model, lib)
@@ -143,7 +156,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         for i, prompt in enumerate(prompts_list):
             for j in range(0, 2):
                 print(f"----------------------------- Generating output {i}-{j}")
-                output_file_name = f"output{i}-{j}"
+                output_file_name = f"output{i}-{j}-{class_name}-{branch}"
                 output = self.generate_output(cm, prompt)
-                self.save_output(prompt, output, outputs_dir, output_file_name)
+                self.save_output(prompt, output, output_path, output_file_name)
                 self.reset_chat_module(cm)
