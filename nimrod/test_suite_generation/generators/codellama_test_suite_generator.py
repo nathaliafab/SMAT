@@ -138,11 +138,11 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                     modified_lines.append(f"/*{''.join(method_code)}*/\n\n")
                     modified_lines.append("import org.junit.FixMethodOrder;\n")
                     modified_lines.append("import org.junit.Test;\n")
-                    modified_lines.append("import org.junit.runners.MethodSorters;\n\n")
-                    print(f"Generating prompt for method {method}")
+                    modified_lines.append("import org.junit.runners.MethodSorters;\n")
+                    modified_lines.append("import static org.junit.Assert.*;\n\n")
                     modified_lines.append(f"@FixMethodOrder(MethodSorters.NAME_ASCENDING)\n")
                     modified_lines.append(f"public class {class_name.split('.')[-1]}Test {{\n")
-                    modified_lines.append(f"//continue with code only:\n")
+                    modified_lines.append(f"//continue the test with code only:\n")
                     modified_lines.append(f"\"\"\"")
                 
                     with open(prompts_file, "w") as file:
@@ -150,6 +150,20 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
             except Exception as e:
                 print(f"Error while generating prompt for method {method}: {e}")
+
+    def get_imports(self, code):
+        with open(code, 'r') as file:
+            lines = file.readlines()
+
+        imports = []
+        for line in lines:
+            if line.strip().startswith("import"):
+                imports.append(line)
+            elif line.strip().startswith("package"):
+                package_name = line.split()[1].rstrip(';')
+                imports.append(f'import {package_name}.*;\n')
+
+        return imports
 
     def read_prompts(self, file_path):
         prompts = []
@@ -201,6 +215,49 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
     def reset_chat_module(self, chat_module):
         chat_module.reset_chat()
 
+    def change_method_name(self, prompt, method_name):
+        new_prompt = prompt.split("public class")[0]
+        new_prompt += f"public class {method_name} {{\n"
+        return new_prompt
+
+    def get_individual_tests(self, output_path, prompt, class_name, imports, i):
+        counter = 0
+
+        if not os.path.exists(f"{output_path}/individual_tests"):
+            os.makedirs(f"{output_path}/individual_tests")
+
+        for file in os.listdir(output_path):
+            lines = []
+            test = []
+            open_brackets_count = 0
+            test_found = False
+
+            if file.endswith(".java") and file.startswith(f"{i}"):
+                with open(os.path.join(output_path, file), "r") as f:
+                    lines.extend(f.readlines())
+
+            for j, line in enumerate(lines):
+                if "{" in line:
+                    open_brackets_count += 1
+                
+                if "}" in line:
+                    open_brackets_count -= 1
+
+                if ("@Test" in line or "import" in line or "package" in line) and test_found:
+                    test_found = False
+                    method_name = f"{class_name.split('.')[-1]}Test_{i}_{counter}"
+                    with open(f"{output_path}/individual_tests/{method_name}.java", "w") as f:
+                        full_prompt = "".join(imports) + self.change_method_name(prompt, method_name)
+                        f.write(full_prompt + "".join(test) + open_brackets_count * "}")
+                        counter += 1
+                    test = []
+
+                if "@Test" in line and not test_found:
+                    test_found = True
+
+                if test_found:
+                    test.append(line)
+
     def _execute_tool_for_tests_generation(self, input_jar: str, output_path: str, scenario: MergeScenarioUnderAnalysis, use_determinism: bool) -> None:
         class_name, methods = list(scenario.targets.items())[0]
          
@@ -216,18 +273,23 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         code_merge = f"/mnt/c/Users/natha/Downloads/mergedataset/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/source/UndertowEmbeddedServletContainerFactory_merge.java"
 
         code, branch = self.get_branch(input_jar, code_base, code_left, code_right, code_merge)
-        print (f"Branch: {branch}")
 
         self.generate_prompts(prompts_path, class_name, methods, code)
+        imports = self.get_imports(code)
 
         prompts_list = self.read_prompts(prompts_path)
         
         cm = self.create_chat_module(mpath, lpath, model, lib)
 
         for i, prompt in enumerate(prompts_list):
-            for j in range(0, 10):
-                print(f"----------------------------- Generating output {i}-{j}")
-                output_file_name = f"{i}{j}-{class_name.replace('.', '_')}-{branch}"
-                output = self.generate_output(cm, prompt)
-                self.save_output(prompt, output, output_path, output_file_name)
-                self.reset_chat_module(cm)
+            for j in range(0, 2):
+                try:
+                    print(f"----------------------------- Generating output {i}{j} in branch \"{branch}\" -----------------------------")
+                    output_file_name = f"{i}{j}_{branch}_{class_name.split('.')[-1]}"
+                    output = self.generate_output(cm, prompt)
+                    self.save_output(prompt, output, output_path, output_file_name)
+                    self.reset_chat_module(cm)
+                except Exception as e:
+                    print(f"Error while generating output {i}-{j} in branch {branch}: {e}")
+                    pass
+            self.get_individual_tests(output_path, prompt, class_name, imports, i)
