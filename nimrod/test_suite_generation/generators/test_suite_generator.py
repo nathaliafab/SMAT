@@ -69,11 +69,10 @@ class TestSuiteGenerator(ABC):
         compiled_classes_path = path.join(test_suite_path, 'classes')
         class_path = generate_classpath([input_jar, test_suite_path, compiled_classes_path, JUNIT, HAMCREST] + extra_class_path)
         for java_file in self._get_test_suite_class_paths(test_suite_path):
-            print("java_file: ", java_file)
             try:
                 self._java.exec_javac(java_file, test_suite_path, None, None,
                                     '-classpath', class_path, '-d', compiled_classes_path)
             except Exception as e:
-                logging.error(f"Error while compiling test suite class {java_file}:\n{e}\n")
+                logging.error("Error while compiling test suite class %s: %s", java_file, e)
                 pass
         return class_path
