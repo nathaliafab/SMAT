@@ -35,9 +35,12 @@ class TestSuiteExecutor:
         results: Dict[str, TestCaseResult] = dict()
 
         for test_class in test_suite.test_classes_names:
+            logging.debug("Test class: %s", test_class)
+
             for i in range(0, number_of_executions):
-                logging.debug("Starting execution %d of %s from suite %s", i + 1, test_class, test_suite.path)
+                logging.info("Starting execution %d of %s from suite %s", i + 1, test_class, test_suite.path)
                 response = self._execute_junit(test_suite, jar, test_class)
+                logging.debug("response: %s", response)
                 for test_case, test_case_result in response.items():
                     test_fqname = f"{test_class}#{test_case}"
                     if results.get(test_fqname) and results.get(test_fqname) != test_case_result:

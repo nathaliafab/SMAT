@@ -1,4 +1,4 @@
-import os
+import os, logging
 from typing import Dict, List
 from nimrod.core.merge_scenario_under_analysis import MergeScenarioUnderAnalysis
 
@@ -49,7 +49,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         try:
             method_return = meth_signature.split(")")[1]
         except Exception as e:
-            print(e)
+            logging.error("Error while converting method signature: %s", e)
         meth_name = meth_signature[:meth_signature.rfind("(")]
         meth_args = meth_signature[meth_signature.find(
             "(") + 1:meth_signature.rfind(")")].split(",")
@@ -58,19 +58,6 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
         return meth_name+asm_meth_format
 
-    # See at: https://asm.ow2.io/asm4-guide.pdf -- Section 2.1.3 and 2.1.4
-    # Java type Type descriptor
-    # boolean Z
-    # char C
-    # byte B
-    # short S
-    # int I
-    # float F
-    # long J
-    # double D
-    # Object Ljava/lang/Object;
-    # int[] [I
-    # Object[][] [[Ljava/lang/Object;
     def _asm_based_method_method_descriptor(self, method_arguments, method_return):
         result = '('
         for arg in method_arguments:
@@ -149,7 +136,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                         file.writelines(modified_lines)
 
             except Exception as e:
-                print(f"Error while generating prompt for method {method}: {e}")
+                logging.error("Error while generating prompt for method %s: %s", method, e)
 
     def get_imports(self, code):
         with open(code, 'r') as file:
@@ -197,8 +184,10 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         if dir:
             if not os.path.exists(dir):
                 os.makedirs(dir)
+            if not os.path.exists(f"{dir}/llm_outputs"):
+                os.makedirs(f"{dir}/llm_outputs")
 
-        output_file_path = f"{dir}/{output_file_name}.java"
+        output_file_path = f"{dir}/llm_outputs/{output_file_name}.txt"
         with open(output_file_path, "w") as f:
             f.write(prompt + output)
 
@@ -223,17 +212,16 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
     def get_individual_tests(self, output_path, prompt, class_name, imports, i):
         counter = 0
 
-        if not os.path.exists(f"{output_path}/individual_tests"):
-            os.makedirs(f"{output_path}/individual_tests")
+        llm_outputs_path = f"{output_path}/llm_outputs/"
 
-        for file in os.listdir(output_path):
+        for file in os.listdir(llm_outputs_path):
             lines = []
             test = []
             open_brackets_count = 0
             test_found = False
 
-            if file.endswith(".java") and file.startswith(f"{i}"):
-                with open(os.path.join(output_path, file), "r") as f:
+            if file.endswith(".txt") and file.startswith(f"{i}"):
+                with open(os.path.join(llm_outputs_path, file), "r") as f:
                     lines.extend(f.readlines())
 
             for j, line in enumerate(lines):
@@ -246,7 +234,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                 if ("@Test" in line or "import" in line or "package" in line) and test_found:
                     test_found = False
                     method_name = f"{class_name.split('.')[-1]}Test_{i}_{counter}"
-                    with open(f"{output_path}/individual_tests/{method_name}.java", "w") as f:
+                    with open(f"{output_path}/{method_name}.java", "w") as f:
                         full_prompt = "".join(imports) + self.change_method_name(prompt, method_name)
                         f.write(full_prompt + "".join(test) + open_brackets_count * "}")
                         counter += 1
@@ -282,14 +270,14 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         cm = self.create_chat_module(mpath, lpath, model, lib)
 
         for i, prompt in enumerate(prompts_list):
-            for j in range(0, 2):
+            for j in range(0, 10):
                 try:
-                    print(f"----------------------------- Generating output {i}{j} in branch \"{branch}\" -----------------------------")
+                    logging.info("Generating output %d%d in branch \"%s\"", i, j, branch)
                     output_file_name = f"{i}{j}_{branch}_{class_name.split('.')[-1]}"
                     output = self.generate_output(cm, prompt)
                     self.save_output(prompt, output, output_path, output_file_name)
                     self.reset_chat_module(cm)
                 except Exception as e:
-                    print(f"Error while generating output {i}-{j} in branch {branch}: {e}")
+                    logging.error("Error while generating output %d%d in branch \"%s\": %s", i, j, branch, e)
                     pass
             self.get_individual_tests(output_path, prompt, class_name, imports, i)

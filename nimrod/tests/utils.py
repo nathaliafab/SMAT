@@ -78,12 +78,35 @@ def setup_logging():
     config = get_config()
     config_level = config.get('logger_level')
     level = logging._nameToLevel[config_level] if config_level else logging.INFO
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
+    
+    # Obtém o logger raiz
+    logger = logging.getLogger()
+    logger.setLevel(level)
+    
+    # Remove handlers antigos se existirem para evitar duplicação
+    if logger.hasHandlers():
+        logger.handlers.clear()
+    
+    # Configura o formato e handlers
+    formatter = logging.Formatter(
+        '%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
 
+    if os.path.exists('logfile.log'):
+        os.remove('logfile.log')
+    
+    # File handler para salvar logs em arquivo
+    file_handler = logging.FileHandler('logfile.log')
+    file_handler.setFormatter(formatter)
+    
+    # Stream handler para exibir logs no terminal
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+    
+    # Adiciona handlers ao logger
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
 
 def get_base_output_path() -> str:
     return os.getcwd().replace("/nimrod/proj", "/")+'/output-test-dest/' if os.getcwd().__contains__("/nimrod/proj") else os.getcwd() + "/output-test-dest/"
