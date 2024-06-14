@@ -1,14 +1,10 @@
 import os, logging
-from typing import Dict, List
+from typing import List
 from nimrod.core.merge_scenario_under_analysis import MergeScenarioUnderAnalysis
-
 from nimrod.test_suite_generation.generators.test_suite_generator import \
     TestSuiteGenerator
-from nimrod.tools.java import Java
-from nimrod.utils import generate_classpath
 
 from mlc_chat import ChatModule
-
 
 class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
