@@ -33,10 +33,8 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         class_names = []
 
         for class_path in self._get_test_suite_class_paths(test_suite_path):
-            class_fqcn = os.path.relpath(class_path, os.path.join(
-                test_suite_path, "codellama-tests")).replace(os.sep, ".")
-            class_names.append(class_fqcn[:-5])
-
+            class_fqcn = os.path.basename(class_path).replace(".java", "")
+            class_names.append(class_fqcn)
         return class_names
 
     def _create_method_list(self, methods: "List[str]"):
@@ -209,7 +207,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         new_prompt += f"public class {method_name} {{\n"
         return new_prompt
 
-    def get_individual_tests(self, output_path, prompt, class_name, imports, i):
+    def get_individual_tests(self, output_path, prompt, class_name, imports, i, test_counter):
         counter = 0
 
         llm_outputs_path = f"{output_path}/llm_outputs/"
@@ -219,6 +217,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
             test = []
             open_brackets_count = 0
             test_found = False
+            test_signature = ""
 
             if file.endswith(".txt") and file.startswith(f"{i}"):
                 with open(os.path.join(llm_outputs_path, file), "r") as f:
@@ -242,6 +241,11 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
                 if "@Test" in line and not test_found:
                     test_found = True
+                    test_signature = lines[j+1].strip()
+                    test_counter += 1
+
+                if test_signature in line and test_found:
+                    line = line.replace(test_signature, f"public void test{test_counter:03d}() {{")
 
                 if test_found:
                     test.append(line)
@@ -269,6 +273,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         
         cm = self.create_chat_module(mpath, lpath, model, lib)
 
+        test_counter = 0
         for i, prompt in enumerate(prompts_list):
             for j in range(0, 10):
                 try:
@@ -280,4 +285,4 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                 except Exception as e:
                     logging.error("Error while generating output %d%d in branch \"%s\": %s", i, j, branch, e)
                     pass
-            self.get_individual_tests(output_path, prompt, class_name, imports, i)
+            self.get_individual_tests(output_path, prompt, class_name, imports, i, test_counter)
