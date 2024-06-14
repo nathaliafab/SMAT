@@ -40,7 +40,7 @@ class TestSuiteExecutor:
             for i in range(0, number_of_executions):
                 logging.info("Starting execution %d of %s from suite %s", i + 1, test_class, test_suite.path)
                 response = self._execute_junit(test_suite, jar, test_class)
-                logging.debug("response: %s", response)
+                logging.debug("RESULTS: %s", response)
                 for test_case, test_case_result in response.items():
                     test_fqname = f"{test_class}#{test_case}"
                     if results.get(test_fqname) and results.get(test_fqname) != test_case_result:
@@ -91,7 +91,7 @@ class TestSuiteExecutor:
             for i in range(0, test_run_count):
                 test_case_name = 'test{number:0{width}d}'.format(width=len(str(test_run_count)), number=i)
                 if not results.get(test_case_name):
-                    results[test_case_name] = TestCaseResult.NOT_EXECUTABLE
+                    pass
  
         return results
 
