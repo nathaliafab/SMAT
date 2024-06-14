@@ -11,8 +11,6 @@ from mlc_chat import ChatModule
 
 
 class CodellamaTestSuiteGenerator(TestSuiteGenerator):
-    TARGET_METHODS_LIST_FILENAME = 'methods_to_test.txt'
-    TARGET_CLASS_LIST_FILENAME = 'classes_to_test.txt'
 
     def get_generator_tool_name(self) -> str:
         return "CODELLAMA"
@@ -25,7 +23,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                 paths += self._get_test_suite_class_paths(os.path.join(path, node))
             elif node.endswith(".java"):
                 paths.append(os.path.join(path, node))
-        
+
         return paths
 
 
@@ -35,69 +33,9 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         for class_path in self._get_test_suite_class_paths(test_suite_path):
             class_fqcn = os.path.basename(class_path).replace(".java", "")
             class_names.append(class_fqcn)
+
         return class_names
 
-    def _create_method_list(self, methods: "List[str]"):
-        rectified_methods = [self._convert_method_signature(
-            method) for method in methods]
-        return (":").join(rectified_methods)
-
-    def _convert_method_signature(self, meth_signature: str) -> str:
-        method_return = ""
-        try:
-            method_return = meth_signature.split(")")[1]
-        except Exception as e:
-            logging.error("Error while converting method signature: %s", e)
-        meth_name = meth_signature[:meth_signature.rfind("(")]
-        meth_args = meth_signature[meth_signature.find(
-            "(") + 1:meth_signature.rfind(")")].split(",")
-        asm_meth_format = self._asm_based_method_method_descriptor(
-            meth_args, method_return)
-
-        return meth_name+asm_meth_format
-
-    def _asm_based_method_method_descriptor(self, method_arguments, method_return):
-        result = '('
-        for arg in method_arguments:
-            arg = arg.strip()
-            result = result + self._asm_based_type_descriptor(arg)
-        result = result + ')'
-        result = result + self._asm_based_type_descriptor(method_return)
-        return result
-
-    def _asm_based_type_descriptor(self, arg):
-        result = ''
-        if '[]' in arg:
-            result = result + '['
-            arg = arg.replace('[]', '')
-
-        if arg == '':
-            result = result + ''
-        elif arg == 'int':
-            result = result + 'I'
-        elif arg == 'float':
-            result = result + 'F'
-        elif arg == 'boolean':
-            result = result + 'Z'
-        elif arg == 'char':
-            result = result + 'C'
-        elif arg == 'byte':
-            result = result + 'B'
-        elif arg == 'short':
-            result = result + 'S'
-        elif arg == 'long':
-            result = result + 'J'
-        elif arg == 'double':
-            result = result + 'D'
-        elif arg == 'void':
-            result = result + 'V'
-        elif arg == 'String':
-            result = result + 'Ljava/lang/String;'
-        else:
-            temp = "L" + arg.replace('.', '/') + ';'
-            result = result + temp
-
-        return result
 
     def generate_prompts(self, prompts_file, class_name, methods, code):
         for method in methods:
@@ -136,6 +74,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
             except Exception as e:
                 logging.error("Error while generating prompt for method %s: %s", method, e)
 
+
     def get_imports(self, code):
         with open(code, 'r') as file:
             lines = file.readlines()
@@ -149,6 +88,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                 imports.append(f'import {package_name}.*;\n')
 
         return imports
+
 
     def read_prompts(self, file_path):
         prompts = []
@@ -167,11 +107,16 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
         return prompts
 
+
     def create_chat_module(self, mpath, lpath, model, lib):
         return ChatModule(
             model=f"{mpath}/{model}",
             model_lib_path=f"{lpath}/{lib}",
         )
+
+
+    def reset_chat_module(self, chat_module):
+        chat_module.reset_chat()
 
 
     def generate_output(self, chat_module, prompt):
@@ -189,6 +134,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         with open(output_file_path, "w") as f:
             f.write(prompt + output)
 
+
     def get_branch(self, input_jar, code_base, code_left, code_right, code_merge):
         if 'base' in input_jar:
             return code_base, "base"
@@ -199,15 +145,8 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         if 'merge' in input_jar:
             return code_merge, "merge"
 
-    def reset_chat_module(self, chat_module):
-        chat_module.reset_chat()
 
-    def change_method_name(self, prompt, method_name):
-        new_prompt = prompt.split("public class")[0]
-        new_prompt += f"public class {method_name} {{\n"
-        return new_prompt
-
-    def get_individual_tests(self, output_path, prompt, class_name, imports, i, test_counter):
+    def get_individual_tests(self, output_path, prompt, class_name, imports, i):
         counter = 0
 
         llm_outputs_path = f"{output_path}/llm_outputs/"
@@ -234,7 +173,9 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                     test_found = False
                     method_name = f"{class_name.split('.')[-1]}Test_{i}_{counter}"
                     with open(f"{output_path}/{method_name}.java", "w") as f:
-                        full_prompt = "".join(imports) + self.change_method_name(prompt, method_name)
+                        new_prompt = prompt.split("public class")[0]
+                        new_prompt += f"public class {method_name} {{\n"
+                        full_prompt = "".join(imports) + new_prompt
                         f.write(full_prompt + "".join(test) + open_brackets_count * "}")
                         counter += 1
                     test = []
@@ -242,10 +183,9 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                 if "@Test" in line and not test_found:
                     test_found = True
                     test_signature = lines[j+1].strip()
-                    test_counter += 1
 
                 if test_signature in line and test_found:
-                    line = line.replace(test_signature, f"public void test{test_counter:03d}() {{")
+                    line = line.replace(test_signature, f"public void test{i}{counter}() {{")
 
                 if test_found:
                     test.append(line)
@@ -273,11 +213,10 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         
         cm = self.create_chat_module(mpath, lpath, model, lib)
 
-        test_counter = 0
         for i, prompt in enumerate(prompts_list):
             for j in range(0, 10):
                 try:
-                    logging.info("Generating output %d%d in branch \"%s\"", i, j, branch)
+                    logging.debug("Generating output %d%d in branch \"%s\"", i, j, branch)
                     output_file_name = f"{i}{j}_{branch}_{class_name.split('.')[-1]}"
                     output = self.generate_output(cm, prompt)
                     self.save_output(prompt, output, output_path, output_file_name)
@@ -285,4 +224,4 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                 except Exception as e:
                     logging.error("Error while generating output %d%d in branch \"%s\": %s", i, j, branch, e)
                     pass
-            self.get_individual_tests(output_path, prompt, class_name, imports, i, test_counter)
+            self.get_individual_tests(output_path, prompt, class_name, imports, i)
