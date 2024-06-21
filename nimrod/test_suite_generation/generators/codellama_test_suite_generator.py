@@ -33,34 +33,76 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         return class_names
 
 
+    def get_method_code(self, file_path, method_name):
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+
+        method_found = False
+        method_code = []
+        class_attributes = []
+        current_method = []
+        other_methods = []
+        search_other_methods = False
+
+        for line in lines:
+            stripped_line = line.strip()
+            
+            # Check for class attributes
+            if ';' in stripped_line and ('private' in stripped_line or 'public' in stripped_line):
+                class_attributes.append(line)
+            
+            # Check for method definition
+            if stripped_line.startswith(('private', 'public')) and method_name.split('(')[0] in stripped_line:
+                method_found = True
+                current_method = [line]
+            elif method_found and stripped_line.startswith(('private', 'public')):
+                break
+            elif method_found:
+                current_method.append(line)
+
+        if method_found:
+            method_code = current_method
+
+            if search_other_methods:
+                for line in method_code:
+                    try:
+                        method_call = line.split('.')[1].strip()
+                        if '(' in line and ')' in line and '=' not in line and ';' in line and method_name not in line:
+                            method_call = method_call.split(';')[0]
+                            other_methods.append(method_call)
+                    except IndexError:
+                        continue
+
+        return method_found, class_attributes, method_code, other_methods
+
+
     def generate_prompts(self, prompts_file, class_name, methods, code):
         for method in methods:
-            temp_method = method.split("(")[0]
-
             try:
-                with open(code, 'r') as file:
-                    lines = file.readlines()
+                method_found, class_attributes, method_code, other_methods = self.get_method_code(code, method)
 
-                method_found = False
-                method_code = []
-                for line in lines:
-                    if temp_method in line and ("private" in line or "public" in line):
-                        method_found = True
-                    elif temp_method not in line and ("private" in line or "public" in line):
-                        if method_found:
-                            break
-                    if method_found:
-                        method_code.append(line)
-
+                other_method_codes = []
                 if method_found:
+                    if other_methods:
+                        for other_method in other_methods:
+                            other_method_found, ca, other_method_code, om = self.get_method_code(code, other_method)
+
+                            if other_method_found:
+                                other_method_codes.append(other_method_code)
+
                     modified_lines = []
-                    modified_lines.append(f"/*{''.join(method_code)}*/\n\n")
+                    modified_lines.append(f"/*\n{''.join(class_attributes)}\n{''.join(method_code)}")
+                    if other_methods:
+                        modified_lines.append("\n")
+                        for i in range(len(other_method_codes)):
+                            modified_lines.append(f"{''.join(other_method_codes[i])}")
+                    modified_lines.append("*/\n\n")
                     modified_lines.append("import org.junit.FixMethodOrder;\n")
                     modified_lines.append("import org.junit.Test;\n")
                     modified_lines.append("import org.junit.runners.MethodSorters;\n")
                     modified_lines.append("import static org.junit.Assert.*;\n\n")
                     modified_lines.append(f"@FixMethodOrder(MethodSorters.NAME_ASCENDING)\n")
-                    modified_lines.append(f"public class {class_name.split('.')[-1]}Test {{\n")
+                    modified_lines.append(f"public class {class_name.split('.')[-1]}_{method.split('(')[0]}Test {{\n")
                     modified_lines.append(f"//continue the test with code only:\n")
                     modified_lines.append(f"\"\"\"")
                 
@@ -150,8 +192,10 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         for file in os.listdir(llm_outputs_path):
             lines = []
             test = []
-            open_brackets_count = 0
+            before = []
+            open_brackets_count = 1
             test_found = False
+            before_found = False
             test_signature = ""
 
             if file.endswith(".txt") and file.startswith(f"{i}"):
@@ -159,31 +203,42 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                     lines.extend(f.readlines())
 
             for j, line in enumerate(lines):
-                if "{" in line:
-                    open_brackets_count += 1
-                
-                if "}" in line:
-                    open_brackets_count -= 1
-
-                if ("@Test" in line or "import" in line or "package" in line) and test_found:
+                if ("@Test" in line or "import" in line or "package" in line or not open_brackets_count) and test_found:
                     test_found = False
                     method_name = f"{class_name.split('.')[-1]}Test_{i}_{counter}"
                     with open(f"{output_path}/{method_name}.java", "w") as f:
                         new_prompt = prompt.split("public class")[0]
                         new_prompt += f"public class {method_name} {{\n"
                         full_prompt = "".join(imports) + new_prompt
+                        if before:
+                            full_prompt += "".join(before)
                         f.write(full_prompt + "".join(test) + open_brackets_count * "}")
                         counter += 1
                     test = []
 
                 if "@Test" in line and not test_found:
                     test_found = True
-                    test_signature = lines[j+1].strip()
+                    before_found = False
+                    if lines[j+1]:
+                        test_signature = lines[j+1].strip()
 
-                if test_signature in line and test_found:
-                    line = line.replace(test_signature, f"public void test{i}{counter}() {{")
+                if before_found:
+                    before.append(line)
+
+                if ("@Before" in line and not before_found):
+                    before_found = True
+                    before.append(line)
 
                 if test_found:
+                    if test_signature in line:
+                        line = line.replace(test_signature, f"public void test{i}{counter}() {{")
+
+                    if "{" in line:
+                        open_brackets_count += 1
+                
+                    if "}" in line:
+                        open_brackets_count -= 1
+
                     test.append(line)
 
     def _execute_tool_for_tests_generation(self, input_jar: str, output_path: str, scenario: MergeScenarioUnderAnalysis, use_determinism: bool) -> None:
@@ -200,6 +255,13 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         code_right = f"/mnt/c/Users/natha/Downloads/mergedataset/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/source/UndertowEmbeddedServletContainerFactory_right.java"
         code_merge = f"/mnt/c/Users/natha/Downloads/mergedataset/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/source/UndertowEmbeddedServletContainerFactory_merge.java"
 
+        """
+        code_base = f"/mnt/c/Users/natha/Downloads/smat/base.java"
+        code_left = f"/mnt/c/Users/natha/Downloads/smat/left.java"
+        code_right = f"/mnt/c/Users/natha/Downloads/smat/right.java"
+        code_merge = f"/mnt/c/Users/natha/Downloads/smat/merge.java"
+        """
+
         code, branch = self.get_branch(input_jar, code_base, code_left, code_right, code_merge)
 
         self.generate_prompts(prompts_path, class_name, methods, code)
@@ -210,7 +272,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         cm = self.create_chat_module(mpath, lpath, model, lib)
 
         for i, prompt in enumerate(prompts_list):
-            for j in range(0, 10):
+            for j in range(0, 5):
                 try:
                     logging.debug("Generating output %d%d in branch \"%s\"", i, j, branch)
                     output_file_name = f"{i}{j}_{branch}_{class_name.split('.')[-1]}"
