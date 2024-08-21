@@ -1,5 +1,7 @@
 import os, logging
-from typing import List
+from typing import List, Generator
+import tree_sitter_java as tsjava
+from tree_sitter import Language, Parser, Node, Tree
 from nimrod.core.merge_scenario_under_analysis import MergeScenarioUnderAnalysis
 from nimrod.test_suite_generation.generators.test_suite_generator import \
     TestSuiteGenerator
@@ -33,81 +35,110 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         return class_names
 
 
-    def get_method_code(self, file_path, method_name):
-        with open(file_path, 'r') as file:
-            lines = file.readlines()
+    def get_method_code(self, file_path, method_name, full_class_name):
+        JAVA_LANGUAGE = Language(tsjava.language())
+        parser = Parser(JAVA_LANGUAGE)
+    
+        class_name = full_class_name.split('.')[-1]
+        source_code = open(file_path).read()
+        tree = parser.parse(bytes(source_code, "utf8"))
 
-        method_found = False
-        method_code = []
-        class_attributes = []
-        current_method = []
-        other_methods = []
-        search_other_methods = False
+        def traverse_tree(tree: Tree) -> Generator[Node, None, None]:
+            cursor = tree.walk()
+            visited_children = False
 
-        for line in lines:
-            stripped_line = line.strip()
-            
-            # Check for class attributes
-            if ';' in stripped_line and ('private' in stripped_line or 'public' in stripped_line):
-                class_attributes.append(line)
-            
-            # Check for method definition
-            if stripped_line.startswith(('private', 'public')) and method_name.split('(')[0] in stripped_line:
-                method_found = True
-                current_method = [line]
-            elif method_found and stripped_line.startswith(('private', 'public')):
-                break
-            elif method_found:
-                current_method.append(line)
+            while True:
+                if not visited_children:
+                    yield cursor.node
+                    visited_children = not cursor.goto_first_child()
+                elif cursor.goto_next_sibling():
+                    visited_children = False
+                elif not cursor.goto_parent():
+                    break
 
-        if method_found:
-            method_code = current_method
+        def get_snippet(start, end):
+            return '\n'.join([line[start.column:] if i == start.row else line[:end.column] if i == end.row else line
+                for i, line in enumerate(source_code.splitlines()) 
+                if start.row <= i <= end.row])
 
-            if search_other_methods:
-                for line in method_code:
-                    try:
-                        method_call = line.split('.')[1].strip()
-                        if '(' in line and ')' in line and '=' not in line and ';' in line and method_name not in line:
-                            method_call = method_call.split(';')[0]
-                            other_methods.append(method_call)
-                    except IndexError:
-                        continue
+        def get_class_node(tree: Tree) -> list:
+            classes = [node for node in traverse_tree(tree) if node.type == 'class_declaration']
+            for class_node in classes:
+                for child in class_node.children:
+                    if child.type == 'identifier':
+                        start = child.start_point
+                        end = child.end_point
+                        child_class_name = get_snippet(start, end).split()[0]
+                        if child_class_name == class_name:
+                            return class_node
+            return None
+        
+        def get_class_attributes_nodes(class_node: Node) -> list:
+            for child in class_node.children:
+                if child.type == 'class_body':
+                    attributes = [node for node in child.children if node.type == 'field_declaration']
+                    break
+            return attributes if attributes else None
+        
+        def get_constructor_nodes(class_node: Node) -> list:
+            for child in class_node.children:
+                if child.type == 'class_body':
+                    constructors = [node for node in child.children if node.type == 'constructor_declaration']
+                    break
+            return constructors if constructors else None
 
-        return method_found, class_attributes, method_code, other_methods
+        def get_method_node(class_node: Node) -> list:
+            for child in class_node.children:
+                if child.type == 'class_body':
+                    methods = [node for node in child.children if node.type == 'method_declaration']
+                    break
+
+            for method in methods:
+                for child in method.children:
+                    if child.type == 'identifier':
+                        start = child.start_point
+                        end = child.end_point
+                        child_method_name = get_snippet(start, end).split()[0]
+                        if child_method_name == method_name:
+                            return method
+            return None
+        
+        class_node = get_class_node(tree)
+        class_attributes = [get_snippet(attribute.start_point, attribute.end_point) for attribute in get_class_attributes_nodes(class_node)]
+        constructor_codes = [get_snippet(constructor.start_point, constructor.end_point) for constructor in get_constructor_nodes(class_node)]
+        method_node = get_method_node(class_node)
+        method_code = get_snippet(method_node.start_point, method_node.end_point)
+
+        return class_attributes, constructor_codes, method_code
 
 
     def generate_prompts(self, prompts_file, class_name, methods, code):
         for method in methods:
             try:
-                method_found, class_attributes, method_code, other_methods = self.get_method_code(code, method)
+                class_attributes, constructor_codes, method_code = self.get_method_code(code, method, class_name)
 
-                other_method_codes = []
-                if method_found:
-                    if other_methods:
-                        for other_method in other_methods:
-                            other_method_found, ca, other_method_code, om = self.get_method_code(code, other_method)
+                modified_lines = []
+                class_attributes_str = '\n'.join(class_attributes)
+                method_code_str = ''.join(method_code)
 
-                            if other_method_found:
-                                other_method_codes.append(other_method_code)
+                if constructor_codes:
+                    constructor_code_str = '\n'.join(constructor_codes)
+                    modified_lines.append(f"/*\n{class_attributes_str}\n\n{constructor_code_str}\n\n{method_code_str}")
+                else:
+                    modified_lines.append(f"/*\n{class_attributes_str}\n\n{method_code_str}")
 
-                    modified_lines = []
-                    modified_lines.append(f"/*\n{''.join(class_attributes)}\n{''.join(method_code)}")
-                    if other_methods:
-                        modified_lines.append("\n")
-                        for i in range(len(other_method_codes)):
-                            modified_lines.append(f"{''.join(other_method_codes[i])}")
-                    modified_lines.append("*/\n\n")
-                    modified_lines.append("import org.junit.FixMethodOrder;\n")
-                    modified_lines.append("import org.junit.Test;\n")
-                    modified_lines.append("import org.junit.runners.MethodSorters;\n")
-                    modified_lines.append("import static org.junit.Assert.*;\n\n")
-                    modified_lines.append(f"@FixMethodOrder(MethodSorters.NAME_ASCENDING)\n")
-                    modified_lines.append(f"public class {class_name.split('.')[-1]}_{method.split('(')[0]}Test {{\n")
-                    modified_lines.append(f"//continue the test with code only:\n")
-                    modified_lines.append(f"\"\"\"")
+                modified_lines.append("\n*/\n\n")
+                modified_lines.append("import org.junit.FixMethodOrder;\n")
+                modified_lines.append("import org.junit.Test;\n")
+                modified_lines.append("import org.junit.runners.MethodSorters;\n")
+                modified_lines.append("import static org.junit.Assert.*;\n\n")
+                modified_lines.append(f"@FixMethodOrder(MethodSorters.NAME_ASCENDING)\n")
+                modified_lines.append(f"public class {class_name.split('.')[-1]}_{method.split('(')[0]}Test {{\n")
+                modified_lines.append(f"//continue the test with code only:\n")
+                modified_lines.append(f"\"\"\"")
                 
-                    with open(prompts_file, "w") as file:
-                        file.writelines(modified_lines)
+                with open(prompts_file, "w") as file:
+                    file.writelines(modified_lines)
 
             except Exception as e:
                 logging.error("Error while generating prompt for method %s: %s", method, e)
@@ -173,73 +204,161 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
             f.write(prompt + output)
 
 
-    def get_branch(self, input_jar, code_base, code_left, code_right, code_merge):
-        if 'base' in input_jar:
-            return code_base, "base"
-        if 'left' in input_jar:
-            return code_left, "left"
-        if 'right' in input_jar:
-            return code_right, "right"
-        if 'merge' in input_jar:
-            return code_merge, "merge"
+    def get_branch(self, input_jar, code_paths):
+        branches = ["base", "left", "right", "merge"]
+        for branch in branches:
+            if branch in input_jar:
+                return code_paths[branch], branch
+        raise ValueError(f"Nenhuma correspondência de branch encontrada no caminho: {input_jar}")
 
 
     def get_individual_tests(self, output_path, prompt, class_name, imports, i):
-        counter = 0
-
         llm_outputs_path = f"{output_path}/llm_outputs/"
 
+        JAVA_LANGUAGE = Language(tsjava.language())
+        parser = Parser(JAVA_LANGUAGE)
+
         for file in os.listdir(llm_outputs_path):
-            lines = []
-            test = []
-            before = []
-            open_brackets_count = 1
-            test_found = False
-            before_found = False
-            test_signature = ""
-
             if file.endswith(".txt") and file.startswith(f"{i}"):
-                with open(os.path.join(llm_outputs_path, file), "r") as f:
-                    lines.extend(f.readlines())
+                source_code = open(os.path.join(llm_outputs_path, file)).read()
+                tree = parser.parse(bytes(source_code, "utf8"))
 
-            for j, line in enumerate(lines):
-                if ("@Test" in line or "import" in line or "package" in line or not open_brackets_count) and test_found:
-                    test_found = False
-                    method_name = f"{class_name.split('.')[-1]}Test_{i}_{counter}"
-                    with open(f"{output_path}/{method_name}.java", "w") as f:
+                def traverse_tree(tree: Tree) -> Generator[Node, None, None]:
+                    cursor = tree.walk()
+                    visited_children = False
+
+                    while True:
+                        if not visited_children:
+                            yield cursor.node
+                            visited_children = not cursor.goto_first_child()
+                        elif cursor.goto_next_sibling():
+                            visited_children = False
+                        elif not cursor.goto_parent():
+                            break
+
+                def collect_methods(tree: Tree) -> list:
+                    methods = [node for node in traverse_tree(tree) if node.type == 'method_declaration']
+                    return methods
+
+                def has_missing_brace(body: Node):
+                    if body.children[-1].start_point.column == body.children[-1].end_point.column:
+                        return True
+                    return False
+                
+                def separate_tests(methods):
+                    before_block = []
+                    test_block = []
+
+                    def get_snippet(start, end):
+                        return '\n'.join([line[start.column:] if i == start.row else line[:end.column] if i == end.row else line
+                                            for i, line in enumerate(source_code.splitlines()) 
+                                            if start.row <= i <= end.row])
+
+                    for method in methods:
+                        children = method.children
+                        for child in children:
+                            if child.type == 'modifiers':
+                                if child.children[0].type == 'marker_annotation':
+                                    start = child.children[0].start_point
+                                    end = child.children[0].end_point
+                                    
+                                    annotation_snippet = get_snippet(start, end)
+                    
+                                    if annotation_snippet in ["@Before", "@BeforeEach", "@BeforeAll", "@BeforeClass"]:
+                                        start = method.start_point
+                                        end = method.end_point
+                                        before_block.append({"snippet": get_snippet(start, end), "missing_braces": has_missing_brace(method.children[-1])})
+                                    
+                                    elif annotation_snippet == "@Test":
+                                        start = method.start_point
+                                        end = method.end_point
+                                        test_block.append({"snippet": get_snippet(start, end), "missing_braces": has_missing_brace(method.children[-1])})
+
+                    print(before_block)
+                    print(test_block)
+                    return before_block, test_block
+
+                methods = collect_methods(tree)
+                before_block, test_block = separate_tests(methods)
+
+                for k, test in enumerate(test_block):
+                    method_name = f"{class_name.split('.')[-1]}Test_{i}_{k}"
+                    file_path = f"{output_path}/{method_name}.java"
+                    
+                    with open(file_path, "w") as f:
                         new_prompt = prompt.split("public class")[0]
                         new_prompt += f"public class {method_name} {{\n"
                         full_prompt = "".join(imports) + new_prompt
-                        if before:
-                            full_prompt += "".join(before)
-                        f.write(full_prompt + "".join(test) + open_brackets_count * "}")
-                        counter += 1
-                    test = []
+                        
+                        if before_block:
+                            for before in before_block:
+                                full_prompt += "".join(before['snippet'])
+                        
+                        snippet = test['snippet']
+                        test_signature = snippet.split("{")[0].strip()
+                        new_signature = f"public void test{i}{k}()"
+                        new_snippet = snippet.replace(test_signature, new_signature, 1)
 
-                if "@Test" in line and not test_found:
-                    test_found = True
-                    before_found = False
-                    if lines[j+1]:
-                        test_signature = lines[j+1].strip()
+                        f.write(full_prompt + new_snippet)
+                        
+                        if test['missing_braces']:
+                            f.write("}")
+                        f.write("}\n")
 
-                if before_found:
-                    before.append(line)
+    
+    def find_source_code_paths(self, jar_path, class_name):
+        return {"base": "/mnt/c/Users/natha/Downloads/smat/base.java",
+                "left": "/mnt/c/Users/natha/Downloads/smat/left.java",
+                "right": "/mnt/c/Users/natha/Downloads/smat/right.java",
+                "merge": "/mnt/c/Users/natha/Downloads/smat/merge.java"}
+        # Dividir o caminho em partes
+        path_parts = jar_path.split(os.sep)
+        
+        # Verificar se a estrutura do caminho é a esperada
+        if "transformed" not in path_parts:
+            raise ValueError("O caminho fornecido não contém a parte 'transformed'.")
+        
+        # Encontrar o índice da parte "transformed"
+        transformed_index = path_parts.index("transformed")
+        
+        # Substituir "transformed" por "source" e remover todas as partes subsequentes
+        source_path_parts = path_parts[:transformed_index] + ["source"]
+        
+        # Construir o caminho base
+        base_path = os.path.join("/", *source_path_parts)
 
-                if ("@Before" in line and not before_found):
-                    before_found = True
-                    before.append(line)
+        # Verificar se o diretório base existe antes de procurar
+        if not os.path.exists(base_path):
+            raise FileNotFoundError(f"O diretório base não existe: {base_path}")
+        
+        # Inicializar dicionário para armazenar caminhos de arquivos
+        java_files = {"base": "", "left": "", "right": "", "merge": ""}
+        
+        # Procurar por arquivos .java recursivamente
+        for root, dirs, files in os.walk(base_path):
+            # Verificar se a pasta com o nome da classe existe e dar preferência aos arquivos dentro dela
+            if os.path.basename(root) == class_name:
+                for file in files:
+                    if file.endswith(".java"):
+                        file_key = file.replace(".java", "")
+                        if file_key in java_files:
+                            java_files[file_key] = os.path.join(root, file)
 
-                if test_found:
-                    if test_signature in line:
-                        line = line.replace(test_signature, f"public void test{i}{counter}() {{")
+            # Verificar arquivos fora da pasta com o nome da classe
+            for file in files:
+                if file.endswith(".java"):
+                    file_key = file.replace(".java", "")
+                    if file_key in java_files and not java_files[file_key]:
+                        java_files[file_key] = os.path.join(root, file)
+                if all(java_files.values()):
+                    break
 
-                    if "{" in line:
-                        open_brackets_count += 1
-                
-                    if "}" in line:
-                        open_brackets_count -= 1
+        # Verifica se todos os arquivos foram encontrados, caso contrário, lança um erro
+        missing_files = [key for key, value in java_files.items() if not value]
+        if missing_files:
+            raise FileNotFoundError(f"Os seguintes arquivos não foram encontrados: {', '.join(missing_files)}")
 
-                    test.append(line)
+        return java_files
 
     def _execute_tool_for_tests_generation(self, input_jar: str, output_path: str, scenario: MergeScenarioUnderAnalysis, use_determinism: bool) -> None:
         class_name, methods = list(scenario.targets.items())[0]
@@ -249,20 +368,8 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         model = "CodeLlama-7b-Instruct-hf-q4f16_1-MLC"
         lib = "CodeLlama-7b-Instruct-hf-q4f16_1-cuda.so"
         prompts_path = f"{output_path}/prompts.txt"
-
-        code_base = f"/mnt/c/Users/natha/Downloads/mergedataset/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/source/UndertowEmbeddedServletContainerFactory_base.java"
-        code_left = f"/mnt/c/Users/natha/Downloads/mergedataset/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/source/UndertowEmbeddedServletContainerFactory_left.java"
-        code_right = f"/mnt/c/Users/natha/Downloads/mergedataset/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/source/UndertowEmbeddedServletContainerFactory_right.java"
-        code_merge = f"/mnt/c/Users/natha/Downloads/mergedataset/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/source/UndertowEmbeddedServletContainerFactory_merge.java"
-
-        """
-        code_base = f"/mnt/c/Users/natha/Downloads/smat/base.java"
-        code_left = f"/mnt/c/Users/natha/Downloads/smat/left.java"
-        code_right = f"/mnt/c/Users/natha/Downloads/smat/right.java"
-        code_merge = f"/mnt/c/Users/natha/Downloads/smat/merge.java"
-        """
-
-        code, branch = self.get_branch(input_jar, code_base, code_left, code_right, code_merge)
+        code_paths = self.find_source_code_paths(input_jar, class_name.split('.')[-1])
+        code, branch = self.get_branch(input_jar, code_paths)
 
         self.generate_prompts(prompts_path, class_name, methods, code)
         imports = self.get_imports(code)
