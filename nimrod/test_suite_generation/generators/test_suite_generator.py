@@ -3,6 +3,7 @@ import logging
 from os import makedirs, path
 from time import time
 from typing import List
+from subprocess import CalledProcessError
 
 from nimrod.tests.utils import get_config
 from nimrod.core.merge_scenario_under_analysis import MergeScenarioUnderAnalysis
@@ -72,7 +73,6 @@ class TestSuiteGenerator(ABC):
             try:
                 self._java.exec_javac(java_file, test_suite_path, None, None,
                                     '-classpath', class_path, '-d', compiled_classes_path)
-            except Exception as e:
-                logging.error("Error while compiling test suite class %s: %s", java_file, e)
-                pass
+            except CalledProcessError:
+                logging.error("Error while compiling %s", java_file)
         return class_path
