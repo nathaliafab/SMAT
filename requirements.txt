@@ -1,1 +1,5 @@
-BeautifulSoup4
+beautifulsoup4==4.12.3
+mlc_chat_nightly_cu122==0.1.dev962
+setuptools==68.2.2
+tree_sitter==0.22.3
+tree_sitter_java==0.21.0
