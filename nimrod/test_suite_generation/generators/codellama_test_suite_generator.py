@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from typing import List
+from typing import List, Dict
 
 import tree_sitter_java as tsjava
 from tree_sitter import Language, Parser
@@ -63,51 +63,71 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         return source_code[start_byte:end_byte]
 
 
-    def get_class_info(self, file_path: str, method_name: str, full_class_name: str) -> tuple:
-        class_name = full_class_name.split('.')[-1]
-        JAVA_LANGUAGE, source_code, tree = self.parse_code(file_path)
+    def get_class_info(self, file_path: str, full_method_name: str, full_class_name: str) -> tuple:
+        try:
+            class_name = full_class_name.split('.')[-1]
+            method_name = full_method_name.split('(')[0]
+            JAVA_LANGUAGE, source_code, tree = self.parse_code(file_path)
 
-        query_text = """
-            (class_declaration name: (identifier) @class_name)
-                (field_declaration) @field_declaration
-                (constructor_declaration) @constructor_declaration
-                (method_declaration) @method_def
-        """
-        query = JAVA_LANGUAGE.query(query_text)
-        captures = query.captures(tree.root_node)
+            query_text = f"""
+                (class_declaration
+                    name: (identifier) @class_name
+                    body: (class_body
+                        [
+                        (field_declaration) @field_declaration
+                        (constructor_declaration
+                            name: (identifier) @constructor_name) @constructor_declaration
+                        (method_declaration
+                            name: (identifier) @method_name) @method_def
+                        (#eq? @method_name "{method_name}")
+                        (#eq? @constructor_name "{class_name}")
+                        ]
+                    )
+                    (#eq? @class_name "{class_name}")
+                )
+            """
+            query = JAVA_LANGUAGE.query(query_text)
+            captures = query.captures(tree.root_node)
 
-        class_attributes = []
-        class_constructors = []
-        class_method = ""
-        found_class = False
+            if not captures:
+                raise Exception(f"No captures found for the class '{class_name}' in '{file_path}'")
 
-        for node, capture_name in captures:
-            captured_text = self.extract_snippet(source_code, node.start_byte, node.end_byte)
+            class_attributes = []
+            class_constructors = []
+            class_method = ""
 
-            if capture_name == "class_name":
-                if captured_text == class_name:
-                    found_class = True
-                elif found_class:
-                    # Stop processing if we encounter a different class after finding the target class
-                    break
-                continue
-
-            if found_class:
+            for node, capture_name in captures:
+                captured_text = self.extract_snippet(source_code, node.start_byte, node.end_byte)
+                
                 if capture_name == "field_declaration":
                     class_attributes.append(captured_text)
                 elif capture_name == "constructor_declaration":
                     class_constructors.append(captured_text)
-                elif capture_name == "method_def" and method_name in captured_text:
+                elif capture_name == "method_def":
                     class_method = captured_text
 
-        return class_attributes, class_constructors, class_method
+            return class_attributes, class_constructors, class_method
 
+        except Exception as e:
+            logging.error(f"An error occurred while extracting class info for '{full_class_name}': {e}")
+            raise e
 
     def generate_prompts(self, prompts_file: str, class_name: str, methods: List[str], file_path: str) -> None:
-        prompts = []
+        if os.path.exists(prompts_file):
+            with open(prompts_file, "r") as file:
+                try:
+                    prompts_dict = json.load(file)
+                except json.JSONDecodeError:
+                    prompts_dict = {}
+        else:
+            prompts_dict = {}
+
+        if class_name not in prompts_dict:
+            prompts_dict[class_name] = []
 
         for method in methods:
             try:
+                logging.info("Generating prompt for method '%s'", method)
                 class_attributes, constructor_codes, method_code = self.get_class_info(file_path, method, class_name)
 
                 class_attributes_str = '\n'.join(class_attributes) if class_attributes else ""
@@ -125,16 +145,16 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                     "//continue the test with code only:\n"
                 )
                 
-                prompts.append(prompt)
+                prompts_dict[class_name].append(prompt)
 
             except Exception as e:
                 logging.error("Error while generating prompt for method %s: %s", method, e)
 
         with open(prompts_file, "w") as file:
-            json.dump(prompts, file, indent=4)
+            json.dump(prompts_dict, file, indent=4)
 
 
-    def get_imports(self, file_path: str) -> List[str]:
+    def get_imports(self, class_name: str, file_path: str, imports_path: str) -> None:
         JAVA_LANGUAGE, source_code, tree = self.parse_code(file_path)
 
         query_text = """
@@ -144,29 +164,38 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         query = JAVA_LANGUAGE.query(query_text)
         captures = query.captures(tree.root_node)
 
-        imports = []
-        
+        if os.path.exists(imports_path):
+            with open(imports_path, "r") as file:
+                try:
+                    imports_dict = json.load(file)
+                except json.JSONDecodeError:
+                    imports_dict = {}
+        else:
+            imports_dict = {}
+
+        class_imports = imports_dict.setdefault(class_name, [])
+
         for node, capture_name in captures:
             start_byte, end_byte = node.start_byte, node.end_byte
             captured_text = source_code[start_byte:end_byte].strip()
 
             if capture_name == "import":
-                imports.append(f'{captured_text}\n')
+                class_imports.append(f'{captured_text}\n')
             elif capture_name == "package":
                 package_name = captured_text.split()[1].rstrip(';')
-                imports.append(f'import {package_name}.*;\n')
+                class_imports.append(f'import {package_name}.*;\n')
 
-        return imports
+        with open(imports_path, "w") as file:
+            json.dump(imports_dict, file, indent=4)
 
 
-    def read_prompts(self, file_path):
+    def load_json(self, file_path):
         with open(file_path, "r") as file:
-            prompts = json.load(file)
-        
-        return prompts
+            content = json.load(file)
+        return content
 
 
-    def get_individual_tests(self, output_path: str, prompt: str, class_name: str, imports: str, i: int) -> None:
+    def get_individual_tests(self, output_path: str, prompt: str, class_name: str, imports: List[str], i: int) -> None:
         llm_outputs_path = os.path.join(output_path, "llm_outputs")
         counter = 0
 
@@ -217,58 +246,40 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
                     counter += 1
 
-    
+
     def find_source_code_paths(self, jar_path: str, class_name: str) -> dict:
-        return {"base": "/mnt/c/Users/natha/Downloads/smat/base.java",
-                "left": "/mnt/c/Users/natha/Downloads/smat/left.java",
-                "right": "/mnt/c/Users/natha/Downloads/smat/right.java",
-                "merge": "/mnt/c/Users/natha/Downloads/smat/merge.java"}
-        # Dividir o caminho em partes
         path_parts = jar_path.split(os.sep)
         
-        # Verificar se a estrutura do caminho é a esperada
         if "transformed" not in path_parts:
-            raise ValueError("O caminho fornecido não contém a parte 'transformed'.")
+            raise ValueError("The provided path does not contain the 'transformed' directory")
         
-        # Encontrar o índice da parte "transformed"
         transformed_index = path_parts.index("transformed")
-        
-        # Substituir "transformed" por "source" e remover todas as partes subsequentes
-        source_path_parts = path_parts[:transformed_index] + ["source"]
-        
-        # Construir o caminho base
-        base_path = os.path.join("/", *source_path_parts)
+        base_path = os.path.join("/", *path_parts[:transformed_index], "source")
 
-        # Verificar se o diretório base existe antes de procurar
         if not os.path.exists(base_path):
-            raise FileNotFoundError(f"O diretório base não existe: {base_path}")
+            raise FileNotFoundError(f"The base path '{base_path}' does not exist")
         
-        # Inicializar dicionário para armazenar caminhos de arquivos
-        java_files = {"base": "", "left": "", "right": "", "merge": ""}
+        java_files = {key: "" for key in ["base", "left", "right", "merge"]}
         
-        # Procurar por arquivos .java recursivamente
-        for root, dirs, files in os.walk(base_path):
-            # Verificar se a pasta com o nome da classe existe e dar preferência aos arquivos dentro dela
+        for root, _, files in os.walk(base_path):
+            java_candidates = [file for file in files if file.endswith(".java")]
+
+            # Prioritize files within the class-named folder
             if os.path.basename(root) == class_name:
-                for file in files:
-                    if file.endswith(".java"):
-                        file_key = file.replace(".java", "")
-                        if file_key in java_files:
-                            java_files[file_key] = os.path.join(root, file)
-
-            # Verificar arquivos fora da pasta com o nome da classe
-            for file in files:
-                if file.endswith(".java"):
+                for file in java_candidates:
                     file_key = file.replace(".java", "")
-                    if file_key in java_files and not java_files[file_key]:
+                    if file_key in java_files:
                         java_files[file_key] = os.path.join(root, file)
-                if all(java_files.values()):
-                    break
 
-        # Verifica se todos os arquivos foram encontrados, caso contrário, lança um erro
-        missing_files = [key for key, value in java_files.items() if not value]
+            # If any file is still missing, try to fill it in
+            for file in java_candidates:
+                file_key = file.replace(".java", "")
+                if file_key in java_files and not java_files[file_key]:
+                    java_files[file_key] = os.path.join(root, file)
+
+        missing_files = [key for key, path in java_files.items() if not path]
         if missing_files:
-            raise FileNotFoundError(f"Os seguintes arquivos não foram encontrados: {', '.join(missing_files)}")
+            raise FileNotFoundError(f"The following files were not found: {', '.join(missing_files)}")
 
         return java_files
     
@@ -289,7 +300,6 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
 
     def _execute_tool_for_tests_generation(self, input_jar: str, output_path: str, scenario: MergeScenarioUnderAnalysis, use_determinism: bool) -> None:
-        class_name, methods = next(iter(scenario.targets.items()))
         model_info = {
             "mpath": "/home/nfab/dist",
             "lpath": "/home/nfab/dist/libs",
@@ -297,27 +307,35 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
             "lib": "CodeLlama-7b-Instruct-hf-q4f16_1-cuda.so"
         }
         prompts_path = os.path.join(output_path, "prompts.json")
+        imports_path = os.path.join(output_path, "imports.json")
+        targets = scenario.targets
 
-        file_path, branch = self.get_branch_info(input_jar, class_name)
-        self.generate_prompts(prompts_path, class_name, methods, file_path)
-        imports = self.get_imports(file_path)
-        prompts_list = self.read_prompts(prompts_path)
-
+        for class_name, methods in targets.items():
+            file_path, branch = self.get_branch_info(input_jar, class_name)
+            self.generate_prompts(prompts_path, class_name, methods, file_path)
+            self.get_imports(class_name, file_path, imports_path)
+        
+        prompts_dict = self.load_json(prompts_path)
+        imports_dict = self.load_json(imports_path)
         cm = self.create_chat_module(**model_info)
 
-        for i, prompt in enumerate(prompts_list):
-            self._process_prompts(prompt, output_path, branch, class_name, imports, i, cm)
+        for class_name, prompts_list in prompts_dict.items():
+            logging.info("Generating tests for target methods in class '%s'", class_name)
+            for i, prompt in enumerate(prompts_list):
+                self._process_prompts(prompt, output_path, branch, class_name, imports=imports_dict.get(class_name, []), i=i, chat_module=cm)
+        
+        os.remove(imports_path) # Remove imports file after generating tests
 
-    def _process_prompts(self, prompt: str, output_path: str, branch: str, class_name: str, imports: str, i: int, cm, num_outputs=5) -> None:
+    def _process_prompts(self, prompt: str, output_path: str, branch: str, class_name: str, imports: List[str], i: int, chat_module: ChatModule, num_outputs: int = 5) -> None:
         for j in range(num_outputs):
             output_file_name = f"{i}{j}_{branch}_{class_name.split('.')[-1]}"
             try:
                 logging.debug("Generating output %d%d in branch \"%s\"", i, j, branch)
-                output = self.generate_output(cm, prompt)
+                output = self.generate_output(chat_module, prompt)
                 self.save_output(prompt, output, output_path, output_file_name)
             except Exception as e:
                 logging.error("Error while generating output %d%d in branch \"%s\": %s", i, j, branch, e)
             finally:
-                self.reset_chat_module(cm)
+                self.reset_chat_module(chat_module)
 
         self.get_individual_tests(output_path, prompt, class_name, imports, i)
