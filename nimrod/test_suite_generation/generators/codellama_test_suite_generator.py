@@ -247,14 +247,13 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                     counter += 1
 
 
-    def find_source_code_paths(self, jar_path: str, class_name: str) -> dict:
-        path_parts = jar_path.split(os.sep)
+    def find_source_code_paths(self, input_jar: str, jar_type: str, class_name: str) -> Dict[str, str]:
+        path_parts = input_jar.split(os.sep)
+        if jar_type != "transformed" and jar_type != "original":
+            raise ValueError("The provided path does not contain the expected jar type (transformed/original)")
         
-        if "transformed" not in path_parts:
-            raise ValueError("The provided path does not contain the 'transformed' directory")
-        
-        transformed_index = path_parts.index("transformed")
-        base_path = os.path.join("/", *path_parts[:transformed_index], "source")
+        type_index = path_parts.index(jar_type)
+        base_path = os.path.join("/", *path_parts[:type_index], "source")
 
         if not os.path.exists(base_path):
             raise FileNotFoundError(f"The base path '{base_path}' does not exist")
@@ -284,8 +283,8 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         return java_files
     
 
-    def get_branch_info(self, input_jar: str, class_name: str) -> tuple:
-        source_code_paths = self.find_source_code_paths(input_jar, class_name.split('.')[-1])
+    def get_branch_info(self, input_jar: str, jar_type: str, class_name: str) -> tuple:
+        source_code_paths = self.find_source_code_paths(input_jar, jar_type, class_name.split('.')[-1])
         branches = ["base", "left", "right", "merge"]
 
         branch = next((b for b in branches if b in input_jar), None)
@@ -309,9 +308,10 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         prompts_path = os.path.join(output_path, "prompts.json")
         imports_path = os.path.join(output_path, "imports.json")
         targets = scenario.targets
+        jar_type = scenario.jar_type
 
         for class_name, methods in targets.items():
-            file_path, branch = self.get_branch_info(input_jar, class_name)
+            file_path, branch = self.get_branch_info(input_jar, jar_type, class_name)
             self.generate_prompts(prompts_path, class_name, methods, file_path)
             self.get_imports(class_name, file_path, imports_path)
         
