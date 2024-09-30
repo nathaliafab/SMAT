@@ -85,8 +85,26 @@ def setup_logging():
     if logger.hasHandlers():
         logger.handlers.clear()
 
+    modules_to_ignore = [
+        'mlc_chat.support.auto_device',
+        'mlc_chat.support',
+        'mlc_chat',
+        'mlc_chat.support.config',
+        'mlc_chat.chat_module',
+        'mlc_chat.serve.engine',
+        'mlc_chat.serve',
+        'auto_device',
+        'chat_module',
+        'model_metadata'
+    ]
+
+    for module in modules_to_ignore:
+        mod_logger = logging.getLogger(module)
+        mod_logger.setLevel(logging.ERROR)
+        mod_logger.propagate = False
+
     formatter = logging.Formatter(
-        '%(asctime)s %(levelname)s %(module)s - %(message)s',
+        '[%(asctime)s] %(levelname)s %(filename)s:%(lineno)d: %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
 
