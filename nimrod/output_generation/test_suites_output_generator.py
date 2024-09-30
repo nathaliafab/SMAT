@@ -23,6 +23,7 @@ class TestSuitesOutputGenerator(OutputGenerator[List[TestSuitesOutput]]):
         for test_suite in context.test_suites:
             report_data.append({
                 "project_name": context.scenario.project_name,
+                "targets": context.scenario.targets,
                 "generator_name": test_suite.generator_name,
                 "path": test_suite.path,
                 "detected_semantic_conflicts": self._has_detected_semantic_conflicts_in_test_suite(test_suite, context.semantic_conflicts),
