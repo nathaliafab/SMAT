@@ -127,7 +127,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
         for method in methods:
             try:
-                logging.info("Generating prompt for method '%s'", method)
+                logging.debug("Generating prompt for method '%s' in class '%s'", method, class_name)
                 class_attributes, constructor_codes, method_code = self.get_class_info(file_path, method, class_name)
 
                 class_attributes_str = '\n'.join(class_attributes) if class_attributes else ""
@@ -148,7 +148,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                 prompts_dict[class_name].append(prompt)
 
             except Exception as e:
-                logging.error("Error while generating prompt for method %s: %s", method, e)
+                logging.error("Error while generating prompt for method '%s': %s", method, e)
 
         with open(prompts_file, "w") as file:
             json.dump(prompts_dict, file, indent=4)
@@ -248,6 +248,10 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
 
     def find_source_code_paths(self, input_jar: str, jar_type: str, class_name: str) -> Dict[str, str]:
+        if not os.path.exists(input_jar):
+            logging.error("The provided jar path '%s' does not exist", input_jar)
+            raise FileNotFoundError(f"The provided path '{input_jar}' does not exist")
+
         path_parts = input_jar.split(os.sep)
         if jar_type != "transformed" and jar_type != "original":
             raise ValueError("The provided path does not contain the expected jar type (transformed/original)")
@@ -278,7 +282,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
         missing_files = [key for key, path in java_files.items() if not path]
         if missing_files:
-            raise FileNotFoundError(f"The following files were not found: {', '.join(missing_files)}")
+            raise FileNotFoundError(f"The following source code files were not found: {', '.join(missing_files)}")
 
         return java_files
     
@@ -298,6 +302,44 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         raise ValueError(f"No corresponding branch found in '{input_jar}'. Available branches: {available_branches}")
 
 
+    def calc_time_spent_per_output(self, time_spent_path: str, output_path: str, class_name: str, output_file_name: str, time_spent: float, project_name: str) -> None:
+        logging.debug("Calculating time spent in output '%s' for class '%s'", output_file_name, class_name)
+        os.makedirs(os.path.dirname(time_spent_path), exist_ok=True)
+
+        try:
+            with open(time_spent_path, "r") as file:
+                time_spent_dict = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            time_spent_dict = {}
+
+        project_data = time_spent_dict.setdefault(project_name, {})
+        class_data = project_data.setdefault(class_name, {"total_time_spent": 0, "outputs": {}})
+
+        key_name = output_path.split(os.sep)[-1] + '_' + output_file_name
+
+        time_spent_rounded = round(time_spent, 2)
+        class_data["outputs"][key_name] = time_spent_rounded
+        class_data["total_time_spent"] = round(class_data["total_time_spent"] + time_spent_rounded, 2)
+
+        try:
+            with open(time_spent_path, "w") as file:
+                json.dump(time_spent_dict, file, indent=4)
+        except Exception as e:
+            logging.error("Error while saving time spent data to '%s': %s", time_spent_path, e)
+            raise
+
+
+    def free_gpu_memory(self, chat_module: ChatModule) -> None:
+        import torch
+    
+        try:
+            torch.cuda.empty_cache()
+            chat_module._unload()
+
+        except Exception as e:
+            logging.error(f"Error during memory cleanup: {e}")
+
+
     def _execute_tool_for_tests_generation(self, input_jar: str, output_path: str, scenario: MergeScenarioUnderAnalysis, use_determinism: bool) -> None:
         model_info = {
             "mpath": "/home/nfab/dist",
@@ -307,6 +349,10 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         }
         prompts_path = os.path.join(output_path, "prompts.json")
         imports_path = os.path.join(output_path, "imports.json")
+
+        time_spent_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(output_path))), "reports", "codellama_time_spent.json")
+
+        project_name = scenario.project_name
         targets = scenario.targets
         jar_type = scenario.jar_type
 
@@ -320,22 +366,28 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         cm = self.create_chat_module(**model_info)
 
         for class_name, prompts_list in prompts_dict.items():
-            logging.info("Generating tests for target methods in class '%s'", class_name)
+            logging.debug("Generating tests for target methods in class '%s'", class_name)
             for i, prompt in enumerate(prompts_list):
-                self._process_prompts(prompt, output_path, branch, class_name, imports=imports_dict.get(class_name, []), i=i, chat_module=cm)
-        
-        os.remove(imports_path) # Remove imports file after generating tests
+                self._process_prompts(prompt, output_path, branch, class_name, imports=imports_dict.get(class_name, []), i=i, chat_module=cm, time_spent_path=time_spent_path, project_name=project_name)
 
-    def _process_prompts(self, prompt: str, output_path: str, branch: str, class_name: str, imports: List[str], i: int, chat_module: ChatModule, num_outputs: int = 5) -> None:
+        os.remove(imports_path) # Remove imports file after generating tests
+        self.free_gpu_memory(cm)
+
+    def _process_prompts(self, prompt: str, output_path: str, branch: str, class_name: str, imports: List[str], i: int, chat_module: ChatModule, time_spent_path: str, project_name: str, num_outputs: int = 5) -> None:
+        import time
         for j in range(num_outputs):
             output_file_name = f"{i}{j}_{branch}_{class_name.split('.')[-1]}"
             try:
                 logging.debug("Generating output %d%d in branch \"%s\"", i, j, branch)
+                start_time = time.time()
                 output = self.generate_output(chat_module, prompt)
                 self.save_output(prompt, output, output_path, output_file_name)
             except Exception as e:
                 logging.error("Error while generating output %d%d in branch \"%s\": %s", i, j, branch, e)
             finally:
                 self.reset_chat_module(chat_module)
+                end_time = time.time()
+                time_spent = end_time - start_time
+                self.calc_time_spent_per_output(time_spent_path, output_path, class_name, output_file_name, time_spent, project_name)
 
         self.get_individual_tests(output_path, prompt, class_name, imports, i)
