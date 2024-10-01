@@ -17,7 +17,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
 
     def _get_test_suite_class_paths(self, path: str) -> List[str]:
-        paths = []
+        paths: list[str] = []
         for root, _, files in os.walk(path):
             paths.extend(os.path.join(root, file) for file in files if file.endswith(".java"))
         return paths
@@ -92,9 +92,9 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
             if not captures:
                 raise Exception(f"No captures found for the class '{class_name}' in '{file_path}'")
 
-            class_attributes = []
-            class_constructors = []
-            class_method = ""
+            class_attributes: List[str] = []
+            class_constructors: List[str] = []
+            class_method: str = ""
 
             for node, capture_name in captures:
                 captured_text = self.extract_snippet(source_code, node.start_byte, node.end_byte)
