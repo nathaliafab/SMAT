@@ -1,5 +1,8 @@
+--extra-index-url https://mlc.ai/wheels
 beautifulsoup4==4.12.3
-mlc_chat_nightly_cu122==0.1.dev962
 setuptools==68.2.2
+torch==2.2.1
 tree_sitter==0.22.3
 tree_sitter_java==0.21.0
+mlc-llm-nightly-cu122
+mlc-ai-nightly-cu122
