@@ -7,7 +7,7 @@ from nimrod.test_suite_generation.test_suite import TestSuite
 
 class TestSuitesOutput(TypedDict):
     project_name: str
-    targets: List[str]
+    targets: dict[str, list[str]]
     generator_name: str
     path: str
     detected_semantic_conflicts: bool
