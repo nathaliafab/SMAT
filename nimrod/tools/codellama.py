@@ -1,7 +1,8 @@
 import os
 
-from nimrod.tools.suite_generator import Suite, SuiteGenerator
+from nimrod.tools.suite_generator import SuiteGenerator
 from nimrod.utils import get_class_files
+
 
 class Codellama(SuiteGenerator):
 
