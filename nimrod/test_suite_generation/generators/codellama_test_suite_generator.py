@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import requests
-from typing import List, Dict
+from typing import List, Dict, Union
 
 import tree_sitter_java as tsjava
 from tree_sitter import Language, Parser
@@ -47,11 +47,11 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
     def build_test_prompt(self, method_info: Dict[str, str], full_class_name: str) -> List[Dict[str, str]]:
         """Builds the test prompt messages for the given method information and class name"""
         class_name = full_class_name.split('.')[-1]
-        class_fields = method_info.get("class_fields", [])
-        constructor_codes = method_info.get("constructor_codes", [])
+        class_fields: Union[str, List[str]] = method_info.get("class_fields", [])
+        constructor_codes: Union[str, List[str]] = method_info.get("constructor_codes", [])
         method_code = method_info.get("method_code", "")
         test_template = method_info.get("test_template", "")
-        messages = [
+        messages: List[Dict[str, str]] = [
             {
                 "role": "system",
                 "content":"""
@@ -135,7 +135,7 @@ Tests to replace the #TEST_METHODS# placeholder:"""
 
         return messages
 
-    def generate_output(self, messages: str, api_url: str) -> Dict[str, str]:
+    def generate_output(self, messages: List[Dict[str, str]], api_url: str) -> Dict[str, str]:
         """Generates the output using the API and returns the response and time duration"""
         url = api_url
         headers = {"Content-Type": "application/json"}
@@ -499,14 +499,14 @@ Tests to replace the #TEST_METHODS# placeholder:"""
 
         os.remove(imports_path) # Remove imports file after generating tests
 
-    def _process_prompts(self, messages: str, test_template: str, output_path: str, branch: str, class_name: str, imports: List[str], i: int, time_duration_path: str, project_name: str, api_url=str, num_outputs: int = 5) -> None:
+    def _process_prompts(self, messages: List[Dict[str, str]], test_template: str, output_path: str, branch: str, class_name: str, imports: List[str], i: int, time_duration_path: str, project_name: str, api_url=str, num_outputs: int = 5) -> None:
         for j in range(num_outputs):
             output_file_name = f"{i}{j}_{branch}_{class_name.split('.')[-1]}"
             try:
                 logging.debug("Generating output %d%d in branch \"%s\"", i, j, branch)
                 output = self.generate_output(messages, api_url)
                 response = output.get("response", "Response not found.")
-                total_duration = output.get("total_duration", 0)
+                total_duration = int(output.get("total_duration", "0") or 0)
                 self.save_output(test_template, response, output_path, output_file_name)
             except Exception as e:
                 logging.error("Error while generating output %d%d in branch \"%s\": %s", i, j, branch, e)
