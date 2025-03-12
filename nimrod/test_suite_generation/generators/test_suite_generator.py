@@ -4,6 +4,7 @@ from os import makedirs, path
 from time import time
 from typing import List
 from subprocess import CalledProcessError
+import json
 
 from nimrod.tests.utils import get_config
 from nimrod.core.merge_scenario_under_analysis import MergeScenarioUnderAnalysis
@@ -66,13 +67,37 @@ class TestSuiteGenerator(ABC):
     def _get_test_suite_class_names(self, test_suite_path: str) -> List[str]:
         pass
 
+    def _update_compilation_results(self, test_suite_path: str, java_file: str, output: str) -> None:
+        """Updates the compilation results file with the output of the compilation of a test suite class."""
+        COMPILATION_LOG_FILE = "compilation_results.json"
+
+        if path.exists(COMPILATION_LOG_FILE):
+            with open(COMPILATION_LOG_FILE, "r", encoding="utf-8") as f:
+                try:
+                    compilation_results = json.load(f)
+                except json.JSONDecodeError:
+                    compilation_results = {}
+        else:
+            compilation_results = {}
+
+        test_suite_entry = compilation_results.setdefault(test_suite_path, {"compilation_output": {}})
+        safe_output = output.strip() if output.strip() else ""
+        test_suite_entry["compilation_output"][java_file] = safe_output
+
+        with open(COMPILATION_LOG_FILE, "w", encoding="utf-8") as f:
+            json.dump(compilation_results, f, indent=4)
+
     def _compile_test_suite(self, input_jar: str, test_suite_path: str, extra_class_path: List[str] = []) -> str:
         compiled_classes_path = path.join(test_suite_path, 'classes')
         class_path = generate_classpath([input_jar, test_suite_path, compiled_classes_path, JUNIT, HAMCREST] + extra_class_path)
         for java_file in self._get_test_suite_class_paths(test_suite_path):
+            output = ""
             try:
                 self._java.exec_javac(java_file, test_suite_path, None, None,
                                     '-classpath', class_path, '-d', compiled_classes_path)
-            except CalledProcessError:
+            except CalledProcessError as e:
+                output = (e.stdout or b'').decode("utf-8", errors="ignore") + (e.stderr or b'').decode("utf-8", errors="ignore")
                 logging.error("Error while compiling %s", java_file)
+            self._update_compilation_results(test_suite_path, java_file, output)
+        
         return class_path
