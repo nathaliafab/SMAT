@@ -2,18 +2,14 @@ import logging
 import os
 import json
 import shutil
-from typing import Dict
+from typing import Dict, Any
 
 PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def get_config() -> "Dict[str, str]":
-    config: "Dict[str, str]" = dict()
-
-    with open(os.path.join(PATH, os.sep.join(['env-config.json'])), 'r') as j:
-        config = json.loads(j.read())
-
-    return config
+def get_config() -> Dict[str, Any]:
+    with open(os.path.join(PATH, "env-config.json"), 'r') as j:
+        return json.load(j)
 
 
 def calculator_project_dir():

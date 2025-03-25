@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import requests
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Any
 import re
 
 import tree_sitter_java as tsjava
@@ -132,7 +132,7 @@ Tests to replace the #TEST_METHODS# placeholder:"""
 
         return messages
 
-    def generate_output(self, messages: List[Dict[str, str]], api_params: Dict[str, str]) -> Dict[str, str]:
+    def generate_output(self, messages: List[Dict[str, str]], api_params: Any) -> Dict[str, str]:
         """Generates the output using the API and returns the response and time duration"""
         timeout_seconds = api_params["codellama"].get("timeout_seconds", 60)
         api_url = api_params["codellama"].get("api_url", "http://localhost:11434/api/chat")
@@ -513,7 +513,7 @@ Tests to replace the #TEST_METHODS# placeholder:"""
 
     def _process_prompts(self, messages: List[Dict[str, str]], test_template: str, output_path: str, branch: str,
                          class_name: str, imports: List[str], i: int, time_duration_path: str, project_name: str,
-                         api_params: Dict[str, str], num_outputs: int = 1) -> None:
+                         api_params: Any, num_outputs: int = 1) -> None:
         for j in range(num_outputs):
             output_file_name = f"{i}{j}_{branch}_{class_name.split('.')[-1]}"
             try:
