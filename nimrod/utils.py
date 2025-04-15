@@ -1,4 +1,5 @@
 import os
+import json
 
 
 def get_class_files(path):
@@ -32,3 +33,19 @@ def package_to_dir(package):
 
 def dir_to_package(directory):
     return directory.replace(os.sep, '.')
+
+
+def load_json(file_path):
+    """Loads a JSON file and return its content as a dictionary"""
+    with open(file_path, "r") as file:
+        try:
+            content = json.load(file)
+        except json.JSONDecodeError:
+            content = {}
+    return content
+
+
+def save_json(file_path, content):
+    """Saves a dictionary as a JSON file"""
+    with open(file_path, "w") as file:
+        json.dump(content, file, indent=4)
