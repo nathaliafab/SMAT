@@ -27,7 +27,11 @@ class Api:
             "model": self.model,
             "messages": [],
             "stream": False,
-            "options": {"temperature": self.temperature, "num_ctx": 16384},
+            "options": {
+                "temperature": self.temperature, 
+                "num_ctx": 16384,
+                "seed": 123
+            },
         }
         self.branch = None
     
@@ -66,7 +70,7 @@ class Api:
         try:
             self.set_payload_messages(messages)
             response = self.post(self.payload)
-            logging.debug("Response: %s", response)
+            #logging.debug("Response: %s", response)
             return {
                 "response": response.get("message", {}).get("content", "Response not found."),
                 "total_duration": response.get("total_duration", self.timeout_seconds),
@@ -76,13 +80,14 @@ class Api:
             return {"error": "Output generation error"}
         
     def generate_messages_list(self, method_info: Dict[str, str], full_class_name: str,
-                               branch: str, output_path: str) -> List[List[Dict[str, str]]]:
+                               branch: str, output_path: str) -> Dict[str, List[Dict[str, str]]]:
         """
         Generates the messages for the API requests.
         Each list of messages contains different information about the method under test.
         """
         self.set_branch(branch)  # Set the branch
         class_name = full_class_name.split('.')[-1]
+        method_name = method_info.get("method_name", "")
         class_fields = method_info.get("class_fields", [])
         constructor_codes = method_info.get("constructor_codes", [])
         method_code = method_info.get("method_code", "")
@@ -102,10 +107,11 @@ class Api:
 
         user_init_msg = {
             "role": "user",
-            "content": f"""{left_changes_summary}\n{right_changes_summary}\nHere is the context of the method under test in the class {class_name} on the {branch} branch:""",
+            "content": f"""Here is the context of the method under test in the class {class_name} on the {branch} branch:""",
         }
 
         user_msg_templates = [
+            {"role": "user", "content": f"{left_changes_summary}\n{right_changes_summary}"},
             {"role": "user", "content": f"Class fields:\n" + "\n".join(class_fields)},
             {"role": "user", "content": f"Constructors:\n" + "\n".join(constructor_codes)},
         ]
@@ -114,17 +120,37 @@ class Api:
                 "role": "user",
                 "content": (
                 f"Target Method Under Test:\n{method_code}\n\n"
-                "Now generate tests for the method under test, considering the given context.\n"
+                "Now generate JUnit tests for the method under test, considering the given context. Remember to create meaningful assertions.\n"
                 "Write all tests inside code blocks (```), and start each test with @Test."
             ),
         }
 
-        messages_lists: List[List[Dict[str, str]]] = []
+        messages_dict: Dict[str, List[Dict[str, str]]] = {}
+        counter = 1
         for r in range(1, len(user_msg_templates) + 1):
             for user_msgs_combination in combinations(user_msg_templates, r):
+                key = f"prompt{counter}"
                 messages_list = [system_message, user_init_msg, *user_msgs_combination, user_method_ctx_msg]
-                messages_lists.append(messages_list)
-        return messages_lists
+                messages_dict[key] = messages_list
+                counter += 1
+
+        # Save messages to a JSON file
+        output_file_path = os.path.join(output_path, "generated_messages.json")
+        if os.path.exists(output_file_path):
+            with open(output_file_path, "r") as file:
+                existing_data = json.load(file)
+        else:
+            existing_data = {}
+
+        if class_name not in existing_data:
+            existing_data[class_name] = {}
+
+        existing_data[class_name][method_info["method_name"]] = messages_dict
+
+        with open(output_file_path, "w") as file:
+            json.dump(existing_data, file, indent=4)
+
+        return messages_dict
 
 
 class CodellamaTestSuiteGenerator(TestSuiteGenerator):
@@ -153,8 +179,8 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         # Remove lines starting with "number. <text>" (e.g., "1. public void test() {...}")
         output = re.sub(r"^\d+\.\s.*$", "", output, flags=re.MULTILINE)
 
-        # Look for @Before, @BeforeClass, or @BeforeAll first; fallback to @Test if none are found
-        markers = ["@Before", "@BeforeClass", "@BeforeAll", "@Test"]
+        # Look for @Before, @BeforeClass first; fallback to @Test if none are found
+        markers = ["@Before", "@BeforeClass", "@Test"]
         index = min((output.find(marker) for marker in markers if marker in output), default=-1)
 
         # Keep only the content starting from the first found annotation
@@ -255,11 +281,14 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                 scenario_infos_dict[class_name].append({
                     'class_fields': class_fields if class_fields else [],
                     'constructor_codes': constructor_codes if constructor_codes else [],
+                    'method_name': method,
                     'method_code': method_code if method_code else "",
                     'left_changes_summary': left_changes_summary,
                     'right_changes_summary': right_changes_summary,
                     'test_template': (
                         "import org.junit.Test;\n"
+                        "import org.junit.Before;\n"
+                        "import org.junit.BeforeClass;\n"
                         "import static org.junit.Assert.*;\n\n"
                         f"public class {class_name.split('.')[-1]}_{method.split('(')[0]}Test {{\n"
                         "#TEST_METHODS#\n"
@@ -302,7 +331,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
         save_json(imports_path, imports_dict)
 
-    def extract_individual_tests(self, output_path: str, test_template: str, class_name: str, imports: List[str], i: int) -> None:
+    def extract_individual_tests(self, output_path: str, test_template: str, class_name: str, imports: List[str], i: int, prompt_key: str) -> None:
         """Extracts individual tests from the generated test suite and saves them to separate files"""
         llm_outputs_path = os.path.join(output_path, "llm_outputs")
         counter = 0
@@ -316,30 +345,35 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                 captured_text = self.extract_snippet(source_code, node.start_byte, node.end_byte)
                 if "@Test" in captured_text:
                     test_block.append({"snippet": captured_text})
-                elif any(annotation in captured_text for annotation in ["@Before", "@BeforeClass", "@BeforeAll"]):
+                elif any(annotation in captured_text for annotation in ["@Before", "@BeforeClass"]):
                     before_block.append({"snippet": captured_text})
 
             return before_block, test_block
 
+        # Format: {i}{j}_{branch}_{class_name.split('.')[-1]}_{prompt_key}.txt
+        pattern = rf"^{i}\d+_(left|right)_{re.escape(class_name.split('.')[-1])}_{prompt_key}\.txt$"
         for file in os.listdir(llm_outputs_path):
             # Avoid processing the wrong files (from different classes)
-            pattern = rf"^{i}\d+_(left|right)_{re.escape(class_name.split('.')[-1])}\.txt$"
             if re.match(pattern, file):
+                logging.debug("Processing file: %s", file)
                 source_code_path = os.path.join(llm_outputs_path, file)
                 JAVA_LANGUAGE, source_code, tree = self.parse_code(source_code_path)
 
+                # Tree-sitter query to find method definitions with annotations
                 query_text = """
                 (method_declaration
-                    (modifiers
-                        (marker_annotation))) @method_def
+                    (modifiers [
+                        (annotation)
+                        (marker_annotation)
+                        ]
+                        )) @method_def
                 """
                 query = JAVA_LANGUAGE.query(query_text)
                 captures = query.captures(tree.root_node)
 
                 before_block, test_block = classify_annotations(captures, source_code)
-
                 for test in test_block:
-                    method_name = f"{class_name.split('.')[-1]}Test_{i}_{counter}"
+                    method_name = f"{class_name.split('.')[-1]}Test_{prompt_key}_{i}_{counter}"
                     output_file_path = os.path.join(output_path, f"{method_name}.java")
 
                     new_template = test_template.split("public class")[0] + f"public class {method_name} {{\n"
@@ -349,13 +383,15 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                         full_template += "".join(before['snippet'] for before in before_block)
 
                     snippet = test['snippet']
-                    test_method_name = snippet.split('(')[0].split()[-1]
-                    new_snippet = snippet.replace(test_method_name, f"test{i}{counter}")
+                    public_index = snippet.find('public')
+                    if public_index != -1:
+                        test_method_name = snippet[public_index:].split('(')[0].split()[-1]
+                        new_snippet = snippet.replace(test_method_name, f"test{i}{counter}")
 
-                    with open(output_file_path, "w") as f:
-                        f.write(full_template + new_snippet + "\n}")
+                        with open(output_file_path, "w") as f:
+                            f.write(full_template + new_snippet + "\n}")
 
-                    counter += 1
+                        counter += 1
 
     def find_source_code_paths(self, input_jar: str, jar_type: str, class_name: str, project_name: str) -> Dict[str, str]:
         """Finds the source code files for the given class name in the specified JAR path"""
@@ -376,6 +412,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         
         raise FileNotFoundError(f"Source code for class '{class_name}' not found in '{base_path}'")
         """
+        input_jar = input_jar.split(":")[0]
         if not os.path.exists(input_jar):
             logging.error("The provided jar path '%s' does not exist", input_jar)
             raise FileNotFoundError(f"The provided path '{input_jar}' does not exist")
@@ -509,26 +546,26 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
                                       branch=branch, class_name=class_name, imports=imports_dict.get(class_name, []),
                                       i=i, time_duration_path=time_duration_path, project_name=project_name)
 
-    def _process_prompts(self, messages_list: List[Dict[str, str]], test_template: str, output_path: str, branch: str,
+    def _process_prompts(self, messages_list: Dict[str, List[Dict[str, str]]], test_template: str, output_path: str, branch: str,
                          class_name: str, imports: List[str], i: int, time_duration_path: str, project_name: str,
                          num_outputs: int = 1) -> None:
         for j in range(num_outputs):
-            for k, messages in enumerate(messages_list):
-                output_file_name = f"{i}{j}{k}_{branch}_{class_name.split('.')[-1]}"
-                self._process_single_prompt(messages, test_template, output_path, branch, class_name, imports, i, j, k, time_duration_path, project_name, output_file_name)
+            for prompt_key, messages in messages_list.items():
+                output_file_name = f"{i}{j}_{branch}_{class_name.split('.')[-1]}_{prompt_key}"
+                self._process_single_prompt(messages, test_template, output_path, branch, class_name, imports, i, j, time_duration_path, project_name, output_file_name, prompt_key)
 
     def _process_single_prompt(self, messages: List[Dict[str, str]], test_template: str, output_path: str, branch: str,
-                               class_name: str, imports: List[str], i: int, j: int, k: int, time_duration_path: str,
-                               project_name: str, output_file_name: str) -> None:
+                               class_name: str, imports: List[str], i: int, j: int, time_duration_path: str,
+                               project_name: str, output_file_name: str, prompt_key: str) -> None:
         try:
-            logging.debug("Processing output %d%d%d in branch \"%s\"", i, j, k, branch)
+            logging.debug("Processing output %d%d for prompt key '%s' in branch \"%s\"", i, j, prompt_key, branch)
             output = self.api.generate_output(messages)
             response = output.get("response", "Response not found.")
             total_duration = int(output.get("total_duration", self.api.timeout_seconds))
             self.save_output(test_template, response, output_path, output_file_name)
         except Exception as e:
-            logging.error("Error while processing output %d%d%d in branch \"%s\": %s", i, j, k, branch, e)
+            logging.error("Error while processing output %d%d for prompt key '%s' in branch \"%s\": %s", i, j, prompt_key, branch, e)
         finally:
             self.record_output_duration(time_duration_path, output_path, class_name, output_file_name, total_duration, project_name)
 
-        self.extract_individual_tests(output_path, test_template, class_name, imports, i)
+        self.extract_individual_tests(output_path, test_template, class_name, imports, i, prompt_key)
