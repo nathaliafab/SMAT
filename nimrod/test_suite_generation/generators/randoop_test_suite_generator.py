@@ -1,5 +1,5 @@
 import os
-from typing import Dict, List
+from typing import Dict, List, Union
 from nimrod.core.merge_scenario_under_analysis import MergeScenarioUnderAnalysis
 
 from nimrod.test_suite_generation.generators.test_suite_generator import \
@@ -38,7 +38,7 @@ class RandoopTestSuiteGenerator(TestSuiteGenerator):
 
         self._java.exec_java(output_path, self._java.get_env(), 3000, *tuple(params))
 
-    def _generate_target_classes_file(self, output_path: str, targets: "Dict[str, List[str]]"):
+    def _generate_target_classes_file(self, output_path: str, targets: "Dict[str, Union[List[Dict[str, str]], List[str]]]"):
         filename = os.path.join(output_path, self.TARGET_CLASS_LIST_FILENAME)
 
         with open(filename, 'w') as f:
@@ -48,12 +48,16 @@ class RandoopTestSuiteGenerator(TestSuiteGenerator):
 
         return filename
 
-    def _generate_target_methods_file(self, output_path: str, targets: "Dict[str, List[str]]"):
+    def _generate_target_methods_file(self, output_path: str, targets: "Dict[str, Union[List[Dict[str, str]], List[str]]]"):
         filename = os.path.join(output_path, self.TARGET_METHODS_LIST_FILENAME)
 
         with open(filename, 'w') as f:
             for fqcn, methods in targets.items():
-                for method in methods:
+                for method_item in methods:
+                    if not isinstance(method_item, dict):
+                        method = method_item
+                    else:
+                        method = method_item.get("method", "")
                     method_signature = fqcn + "." + method
                     f.write(method_signature)
 

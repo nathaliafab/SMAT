@@ -34,7 +34,7 @@ class Api:
                 "seed": self.seed,
             },
         }
-        self.branch = None
+        self.branch: Optional[str] = None
     
     def set_branch(self, branch: str) -> None:
         """Sets the branch to be used in the API requests."""
@@ -66,7 +66,7 @@ class Api:
         """Sets the messages in the payload."""
         self.payload["messages"] = messages
 
-    def generate_output(self, messages: List[Dict[str, str]]) -> Dict[str, Union[str, int]]:
+    def generate_output(self, messages: List[Dict[str, str]]) -> Dict[str, Any]:
         """Generates output by sending messages to the API."""
         try:
             self.set_payload_messages(messages)
@@ -89,8 +89,8 @@ class Api:
         self.set_branch(branch)  # Set the branch
         class_name = full_class_name.split('.')[-1]
         method_name = method_info.get("method_name", "")
-        class_fields = method_info.get("class_fields", [])
-        constructor_codes = method_info.get("constructor_codes", [])
+        class_fields: Union[str, List[str]] = method_info.get("class_fields", [])
+        constructor_codes: Union[str, List[str]] = method_info.get("constructor_codes", [])
         method_code = method_info.get("method_code", "")
         left_changes_summary = method_info.get("left_changes_summary", "")
         right_changes_summary = method_info.get("right_changes_summary", "")
@@ -272,7 +272,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
             logging.error(f"An error occurred while extracting class info for '{full_class_name}': {e}")
             raise e
 
-    def save_scenario_infos(self, scenario_infos_path: str, class_name: str, methods: List[str], source_code_path: str) -> None:
+    def save_scenario_infos(self, scenario_infos_path: str, class_name: str, methods: Union[List[str], List[Dict[str, str]]], source_code_path: str) -> None:
         """Stores relevant scenario information (for each class and method) in a JSON file"""
         if os.path.exists(scenario_infos_path):
             scenario_infos_dict = load_json(scenario_infos_path)
@@ -282,11 +282,27 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         if class_name not in scenario_infos_dict:
             scenario_infos_dict[class_name] = []
 
+        """
+        method_item ->
+        {
+          "method": "methodname()",
+          "leftChangesSummary": "Left does...",
+          "rightChangesSummary": "Right does..."
+        }
+
+        method_item -> "methodname()"
+        """
         for method_item in methods:
-            method = method_item.get("method", method_item)
-            left_changes_summary = method_item.get("leftChangesSummary", "")
-            right_changes_summary = method_item.get("rightChangesSummary", "")
+            if not isinstance(method_item, dict):
+                method = method_item
+                left_changes_summary = ""
+                right_changes_summary = ""
+            else:
+                method = method_item.get("method", "")
+                left_changes_summary = method_item.get("leftChangesSummary", "")
+                right_changes_summary = method_item.get("rightChangesSummary", "")
             try:
+                method = re.sub(r'\|', ',', method)
                 logging.debug("Saving scenario information for method '%s' in class '%s'", method, class_name)
                 class_fields, constructor_codes, method_code = self.extract_class_info(source_code_path, method, class_name)
 

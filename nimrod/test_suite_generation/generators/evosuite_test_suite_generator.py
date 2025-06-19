@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import List
+from typing import List, Dict, Union
 from nimrod.core.merge_scenario_under_analysis import MergeScenarioUnderAnalysis
 
 from nimrod.test_suite_generation.generators.test_suite_generator import \
@@ -69,10 +69,15 @@ class EvosuiteTestSuiteGenerator(TestSuiteGenerator):
     def _compile_test_suite(self, input_jar: str, output_path: str, extra_class_path: List[str] = []) -> str:
         return super()._compile_test_suite(input_jar, output_path, [EVOSUITE_RUNTIME] + extra_class_path)
 
-    def _create_method_list(self, methods: "List[str]"):
-        rectified_methods = [self._convert_method_signature(
-            method) for method in methods]
-        return (":").join(rectified_methods)
+    def _create_method_list(self, methods: "Union[List[Dict[str, str]], List[str]]"):
+        rectified_methods = []
+        for method_item in methods:
+            if isinstance(method_item, dict):
+                method_str = method_item.get("method", "")
+            else:
+                method_str = method_item
+            rectified_methods.append(self._convert_method_signature(method_str))
+        return ":".join(rectified_methods)
 
     def _convert_method_signature(self, meth_signature: str) -> str:
         method_return = ""
