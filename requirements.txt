@@ -1,5 +1,5 @@
-beautifulsoup4==4.12.3
-setuptools==70.0.0
-tree_sitter==0.22.3
-tree_sitter_java==0.21.0
-types-requests==2.32.0.20241016
+beautifulsoup4
+setuptools
+tree_sitter
+tree_sitter_java
+types-requests
