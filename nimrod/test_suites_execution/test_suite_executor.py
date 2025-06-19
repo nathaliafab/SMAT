@@ -46,7 +46,11 @@ class TestSuiteExecutor:
 
         for test_class in test_suite.test_classes_names:
             logging.debug("Test class: %s", test_class)
-            class_file_path = path.join(test_suite.path, f"classes/{test_class}.class")
+            if test_suite.generator_name == "EVOSUITE":
+                class_file_path = path.join(test_suite.path, f"classes/{test_class.replace('.', '/')}.class")
+
+            else:
+                class_file_path = path.join(test_suite.path, f"classes/{test_class}.class")
 
             if not path.exists(class_file_path):
                 logging.warning("Class file %s does not exist; skipping execution", class_file_path)
