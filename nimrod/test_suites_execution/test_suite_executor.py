@@ -102,20 +102,32 @@ class TestSuiteExecutor:
             command = self._java.exec_java(test_suite.path, self._java.get_env(), TIMEOUT, *params)
             output = command.decode('unicode_escape')
 
+            if test_suite.generator_name == "CODELLAMA":
+                #HSaslThriftClientTest_right_prompt1_0_39.java
+                #test_class_num = "39"
+                #HSaslThriftClientTest_right_prompt1_1_39.java
+                #test_class_num = "139"
+                parts = test_class.replace(".java", "").split("_")
+                test_class_num = parts[-2] + parts[-1]
+                return self._parse_test_results_from_output(output, test_class_num)
             return self._parse_test_results_from_output(output)
         except subprocess.CalledProcessError as error:
             output = error.output.decode('unicode_escape')
             return self._parse_test_results_from_output(output)
 
-    def _parse_test_results_from_output(self, output: str) -> Dict[str, TestCaseResult]:
+    def _parse_test_results_from_output(self, output: str, test_class_num: str = None) -> Dict[str, TestCaseResult]:
         results: Dict[str, TestCaseResult] = dict()
 
         success_match = re.search(r'OK \((?P<number_of_tests>\d+) tests?\)', output)
         if success_match:
-            number_of_tests = int(success_match.group('number_of_tests'))
-            for i in range(0, number_of_tests):
-                test_case_name = 'test{number:0{width}d}'.format(width=len(str(number_of_tests)), number=i)
+            if test_class_num:
+                test_case_name = f'test{test_class_num}'
                 results[test_case_name] = TestCaseResult.PASS
+            else:
+                number_of_tests = int(success_match.group('number_of_tests'))
+                for i in range(0, number_of_tests):
+                    test_case_name = 'test{number:0{width}d}'.format(width=len(str(number_of_tests)), number=i)
+                    results[test_case_name] = TestCaseResult.PASS
         else:
             failed_tests = re.findall(r'(?P<test_case_name>test\d+)\([A-Za-z0-9_.]+\)', output)
             for failed_test in failed_tests:
@@ -131,7 +143,10 @@ class TestSuiteExecutor:
                         if not results.get(test_case_name) and test_run_count > 1:
                             results[test_case_name] = TestCaseResult.PASS
         if not results:
-            test_case_name = 'test0'
+            if test_class_num:
+                test_case_name = f'test{test_class_num}'
+            else:
+                test_case_name = 'test0'
             results[test_case_name] = TestCaseResult.NOT_EXECUTABLE
         return results
 
