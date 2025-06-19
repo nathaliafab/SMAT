@@ -17,10 +17,11 @@ from nimrod.utils import load_json, save_json
 
 class Api:
 
-    def __init__(self, api_url: str, timeout_seconds: int, temperature: float, model: str) -> None:
+    def __init__(self, api_url: str, timeout_seconds: int, temperature: float, seed: int, model: str) -> None:
         self.api_url = api_url
         self.timeout_seconds = timeout_seconds
         self.temperature = temperature
+        self.seed = seed
         self.model = model
         self.headers = {"Content-Type": "application/json"}
         self.payload = {
@@ -30,7 +31,7 @@ class Api:
             "options": {
                 "temperature": self.temperature, 
                 "num_ctx": 16384,
-                "seed": 123
+                "seed": self.seed,
             },
         }
         self.branch = None
@@ -94,6 +95,9 @@ class Api:
         left_changes_summary = method_info.get("left_changes_summary", "")
         right_changes_summary = method_info.get("right_changes_summary", "")
 
+
+        ######################################################
+        ## PROMPTS INCREMENTAL COMBINATIONS
         system_message = {
             "role": "system",
             "content": (
@@ -127,6 +131,14 @@ class Api:
 
         messages_dict: Dict[str, List[Dict[str, str]]] = {}
         counter = 1
+
+        ## PROMPT SEM CONTEXTO
+        key = f"prompt{counter}"
+        messages_list = [system_message, user_init_msg, user_method_ctx_msg]
+        messages_dict[key] = messages_list
+        counter += 1
+
+        ## PROMPTS COM CONTEXTO
         for r in range(1, len(user_msg_templates) + 1):
             for user_msgs_combination in combinations(user_msg_templates, r):
                 key = f"prompt{counter}"
@@ -331,7 +343,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
         save_json(imports_path, imports_dict)
 
-    def extract_individual_tests(self, output_path: str, test_template: str, class_name: str, imports: List[str], i: int, prompt_key: str) -> None:
+    def extract_individual_tests(self, output_path: str, test_template: str, class_name: str, imports: List[str], i: int, j: int, prompt_key: str, branch: str) -> None:
         """Extracts individual tests from the generated test suite and saves them to separate files"""
         llm_outputs_path = os.path.join(output_path, "llm_outputs")
         counter = 0
@@ -351,7 +363,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
             return before_block, test_block
 
         # Format: {i}{j}_{branch}_{class_name.split('.')[-1]}_{prompt_key}.txt
-        pattern = rf"^{i}\d+_(left|right)_{re.escape(class_name.split('.')[-1])}_{prompt_key}\.txt$"
+        pattern = rf"^{i}{j}_(left|right)_{re.escape(class_name.split('.')[-1])}_{prompt_key}\.txt$"
         for file in os.listdir(llm_outputs_path):
             # Avoid processing the wrong files (from different classes)
             if re.match(pattern, file):
@@ -373,7 +385,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
                 before_block, test_block = classify_annotations(captures, source_code)
                 for test in test_block:
-                    method_name = f"{class_name.split('.')[-1]}Test_{prompt_key}_{i}_{counter}"
+                    method_name = f"{class_name.split('.')[-1]}Test_{branch}_{prompt_key}_{j}_{i}_{counter}"
                     output_file_path = os.path.join(output_path, f"{method_name}.java")
 
                     new_template = test_template.split("public class")[0] + f"public class {method_name} {{\n"
@@ -395,23 +407,6 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
 
     def find_source_code_paths(self, input_jar: str, jar_type: str, class_name: str, project_name: str) -> Dict[str, str]:
         """Finds the source code files for the given class name in the specified JAR path"""
-        """
-        base_path = os.path.join("/mnt/c/Users/natha/Downloads/tests", project_name)
-        if not os.path.exists(base_path):
-            raise FileNotFoundError(f"The base path '{base_path}' does not exist")
-        
-        # Converter class_name para path relativo dentro do diretório base
-        relative_path = class_name.replace(".", "/") + ".java"
-        
-        # Procurar o arquivo no diretório base
-        for root, _, files in os.walk(base_path):
-            if relative_path.split('/')[-1] in files:
-                full_path = os.path.join(root, relative_path.split('/')[-1])
-                logging.debug("Source code found for class '%s' in '%s'", class_name, full_path)
-                return {key: full_path for key in ["base", "left", "right", "merge"]}
-        
-        raise FileNotFoundError(f"Source code for class '{class_name}' not found in '{base_path}'")
-        """
         input_jar = input_jar.split(":")[0]
         if not os.path.exists(input_jar):
             logging.error("The provided jar path '%s' does not exist", input_jar)
@@ -509,6 +504,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
             api_url=codellama_params.get("api_url", "http://localhost:11434/api/chat"),
             timeout_seconds=codellama_params.get("timeout_seconds", 60),
             temperature=codellama_params.get("temperature", 0),
+            seed=codellama_params.get("seed", 42),
             model=codellama_params.get("model", "codellama:70b")
         )
 
@@ -568,4 +564,4 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         finally:
             self.record_output_duration(time_duration_path, output_path, class_name, output_file_name, total_duration, project_name)
 
-        self.extract_individual_tests(output_path, test_template, class_name, imports, i, prompt_key)
+        self.extract_individual_tests(output_path, test_template, class_name, imports, i, j, prompt_key, branch)
