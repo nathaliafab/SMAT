@@ -94,9 +94,6 @@ class Coverage_Report(Setup_tool):
         return None
 
     def retornaDadosParaAnalise(self, evo, path_suite, suite_merge, jacoco, classeTarget, listaPacoteMetodoClasse, targets: "dict[str, list[str]]"):
-        global tagAClasseTarget
-        global tagSpanMetodoTarget
-
         print("Classe Target ", classeTarget)
 
         listaJar = evo.project_dep.mergeDir.split(
