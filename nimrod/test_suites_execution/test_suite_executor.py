@@ -3,7 +3,7 @@ import re
 import subprocess
 import json
 from os import path
-from typing import Dict, List
+from typing import Dict, List, Optional
 from nimrod.test_suite_generation.test_suite import TestSuite
 from nimrod.test_suites_execution.test_case_result import TestCaseResult
 from nimrod.tests.utils import get_base_output_path
@@ -119,7 +119,7 @@ class TestSuiteExecutor:
             output = error.output.decode('unicode_escape')
             return self._parse_test_results_from_output(output)
 
-    def _parse_test_results_from_output(self, output: str, test_class_num: str = None) -> Dict[str, TestCaseResult]:
+    def _parse_test_results_from_output(self, output: str, test_class_num: Optional[str] = None) -> Dict[str, TestCaseResult]:
         results: Dict[str, TestCaseResult] = dict()
 
         success_match = re.search(r'OK \((?P<number_of_tests>\d+) tests?\)', output)
