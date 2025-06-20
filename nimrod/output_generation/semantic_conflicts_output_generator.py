@@ -1,8 +1,9 @@
-from typing import Dict, List, TypedDict
+from typing import Dict, List, TypedDict, Union
 from nimrod.output_generation.output_generator import OutputGenerator, OutputGeneratorContext
 from nimrod.test_suites_execution.main import TestSuitesExecution
 from os import path
 from bs4 import BeautifulSoup
+import logging
 
 
 class SemanticConflictsOutput(TypedDict):
@@ -12,7 +13,7 @@ class SemanticConflictsOutput(TypedDict):
     test_case_name: str
     test_case_results: Dict[str, str]
     test_suite_path: str
-    scenario_targets: Dict[str, List[str]]
+    scenario_targets: Dict[str, Union[List[Dict[str, str]], List[str]]]
     exercised_targets: Dict[str, List[str]]
 
 
@@ -26,40 +27,51 @@ class SemanticConflictsOutputGenerator(OutputGenerator[List[SemanticConflictsOut
 
         for semantic_conflict in context.semantic_conflicts:
             # We need to detect which targets from the input were exercised in this conflict.
-            coverage_report_root = self._test_suites_execution.execute_test_suite_with_coverage(
-                test_suite=semantic_conflict.detected_in.test_suite,
-                target_jar=context.scenario.scenario_jars.merge,
-                test_cases=[semantic_conflict.detected_in.name]
-            )
+            exercised_targets: Dict[str, List[str]] = dict()
+            try:
+                coverage_report_root = self._test_suites_execution.execute_test_suite_with_coverage(
+                    test_suite=semantic_conflict.detected_in.test_suite,
+                    target_jar=context.scenario.scenario_jars.merge,
+                    test_cases=[semantic_conflict.detected_in.name]
+                )
 
-            exercised_targets = self._extract_exercised_targets_from_coverage_report(
-                coverage_report_root=coverage_report_root,
-                targets=context.scenario.targets
-            )
+                exercised_targets = self._extract_exercised_targets_from_coverage_report(
+                    coverage_report_root=coverage_report_root,
+                    targets=context.scenario.targets
+                )
 
-            report_data.append({
-                "project_name": context.scenario.project_name,
-                "scenario_commits": context.scenario.scenario_commits.__dict__,
-                "criteria": semantic_conflict._satisfying_criteria.__class__.__name__,
-                "test_case_name": semantic_conflict.detected_in.name,
-                "test_case_results": {
-                    "base": semantic_conflict.detected_in.base,
-                    "left": semantic_conflict.detected_in.left,
-                    "right": semantic_conflict.detected_in.right,
-                    "merge": semantic_conflict.detected_in.merge
-                },
-                "test_suite_path": semantic_conflict.detected_in.test_suite.path,
-                "scenario_targets": context.scenario.targets,
-                "exercised_targets": exercised_targets
-            })
+            except Exception as e:
+                # If we cannot execute the test suite with coverage, we log the error and continue.
+                logging.error(f"Error executing test suite with coverage for semantic conflict: {e}")
+
+            finally:
+                report_data.append({
+                    "project_name": context.scenario.project_name,
+                    "scenario_commits": context.scenario.scenario_commits.__dict__,
+                    "criteria": semantic_conflict._satisfying_criteria.__class__.__name__,
+                    "test_case_name": semantic_conflict.detected_in.name,
+                    "test_case_results": {
+                        "base": semantic_conflict.detected_in.base,
+                        "left": semantic_conflict.detected_in.left,
+                        "right": semantic_conflict.detected_in.right,
+                        "merge": semantic_conflict.detected_in.merge
+                    },
+                    "test_suite_path": semantic_conflict.detected_in.test_suite.path,
+                    "scenario_targets": context.scenario.targets,
+                    "exercised_targets": exercised_targets
+                })
 
         return report_data
 
-    def _extract_exercised_targets_from_coverage_report(self, coverage_report_root: str, targets: Dict[str, List[str]]):
+    def _extract_exercised_targets_from_coverage_report(self, coverage_report_root: str, targets: Dict[str, Union[List[Dict[str, str]], List[str]]]):
         exercised_targets: Dict[str, List[str]] = dict()
 
         for class_name in targets.keys():
-            for method_name in targets[class_name]:
+            for method_item in targets[class_name]:
+                if isinstance(method_item, dict):
+                    method_name = method_item.get("method", "")
+                else:
+                    method_name = method_item
                 if self._was_target_exercised(coverage_report_root, class_name, method_name):
                     exercised_targets[class_name] = exercised_targets.get(
                         class_name, []) + [method_name]
@@ -80,7 +92,11 @@ class SemanticConflictsOutputGenerator(OutputGenerator[List[SemanticConflictsOut
         # We itereate in each method row
         for method_row in method_report_rows:
             if method_row.get_text().find(method_name) != -1:
-                if method_row.select_one('td:nth-last-child(2)').get_text() == '0':
+                tag = method_row.select_one('td:nth-last-child(2)')
+                if tag is None:
+                    continue
+                # If the second last column is 0, it means the method was not executed
+                if tag.get_text() == "0":
                     return True
 
         return False

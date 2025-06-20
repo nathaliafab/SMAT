@@ -2,7 +2,8 @@ import json
 import logging
 import os
 import requests
-from typing import List, Dict, Union, Any
+from typing import List, Dict, Union, Any, Optional
+from itertools import combinations
 import re
 
 import tree_sitter_java as tsjava
@@ -11,6 +12,157 @@ from tree_sitter import Language, Parser
 from nimrod.core.merge_scenario_under_analysis import MergeScenarioUnderAnalysis
 from nimrod.test_suite_generation.generators.test_suite_generator import TestSuiteGenerator
 from nimrod.tests.utils import get_config
+from nimrod.utils import load_json, save_json
+
+
+class Api:
+
+    def __init__(self, api_url: str, timeout_seconds: int, temperature: float, seed: int, model: str) -> None:
+        self.api_url = api_url
+        self.timeout_seconds = timeout_seconds
+        self.temperature = temperature
+        self.seed = seed
+        self.model = model
+        self.headers = {"Content-Type": "application/json"}
+        self.payload = {
+            "model": self.model,
+            "messages": [],
+            "stream": False,
+            "options": {
+                "temperature": self.temperature, 
+                "num_ctx": 16384,
+                "seed": self.seed,
+            },
+        }
+        self.branch: Optional[str] = None
+    
+    def set_branch(self, branch: str) -> None:
+        """Sets the branch to be used in the API requests."""
+        self.branch = branch
+
+    def post(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Sends a POST request to the API and handles the response."""
+        try:
+            response: requests.Response = requests.post(
+                self.api_url,
+                headers=self.headers,
+                json=payload,
+                timeout=self.timeout_seconds
+            )
+            response.raise_for_status()
+            logging.debug("Request successful. Status: %s", response.status_code)
+            return response.json()
+        except requests.exceptions.Timeout:
+            logging.error("Request timed out.")
+            return {"error": "Request timed out"}
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Request error: {e}")
+            return {"error": "Request error"}
+        except json.JSONDecodeError:
+            logging.error("JSON decoding error.")
+            return {"error": "JSON decoding error"}
+    
+    def set_payload_messages(self, messages: List[Dict[str, str]]) -> None:
+        """Sets the messages in the payload."""
+        self.payload["messages"] = messages
+
+    def generate_output(self, messages: List[Dict[str, str]]) -> Dict[str, Any]:
+        """Generates output by sending messages to the API."""
+        try:
+            self.set_payload_messages(messages)
+            response = self.post(self.payload)
+            #logging.debug("Response: %s", response)
+            return {
+                "response": response.get("message", {}).get("content", "Response not found."),
+                "total_duration": response.get("total_duration", self.timeout_seconds),
+            }
+        except Exception as e:
+            logging.error(f"Error generating output: {e}")
+            return {"error": "Output generation error"}
+        
+    def generate_messages_list(self, method_info: Dict[str, str], full_class_name: str,
+                               branch: str, output_path: str) -> Dict[str, List[Dict[str, str]]]:
+        """
+        Generates the messages for the API requests.
+        Each list of messages contains different information about the method under test.
+        """
+        self.set_branch(branch)  # Set the branch
+        class_name = full_class_name.split('.')[-1]
+        method_name = method_info.get("method_name", "")
+        class_fields: Union[str, List[str]] = method_info.get("class_fields", [])
+        constructor_codes: Union[str, List[str]] = method_info.get("constructor_codes", [])
+        method_code = method_info.get("method_code", "")
+        left_changes_summary = method_info.get("left_changes_summary", "")
+        right_changes_summary = method_info.get("right_changes_summary", "")
+
+
+        ######################################################
+        ## PROMPTS INCREMENTAL COMBINATIONS
+        system_message = {
+            "role": "system",
+            "content": (
+                "You are a senior Java developer with expertise in JUnit testing.\n"
+                "Your task is to provide JUnit tests for the given method in the class under test, "
+                "considering the changes introduced in the left and right branches.\n"
+                "You have to answer with the test code only, inside code blocks (```).\n"
+                "The tests should start with @Test."
+            ),
+        }
+
+        user_init_msg = {
+            "role": "user",
+            "content": f"""Here is the context of the method under test in the class {class_name} on the {branch} branch:""",
+        }
+
+        user_msg_templates = [
+            {"role": "user", "content": f"{left_changes_summary}\n{right_changes_summary}"},
+            {"role": "user", "content": f"Class fields:\n" + "\n".join(class_fields)},
+            {"role": "user", "content": f"Constructors:\n" + "\n".join(constructor_codes)},
+        ]
+
+        user_method_ctx_msg = {
+                "role": "user",
+                "content": (
+                f"Target Method Under Test:\n{method_code}\n\n"
+                "Now generate JUnit tests for the method under test, considering the given context. Remember to create meaningful assertions.\n"
+                "Write all tests inside code blocks (```), and start each test with @Test."
+            ),
+        }
+
+        messages_dict: Dict[str, List[Dict[str, str]]] = {}
+        counter = 1
+
+        ## PROMPT SEM CONTEXTO
+        key = f"prompt{counter}"
+        messages_list = [system_message, user_init_msg, user_method_ctx_msg]
+        messages_dict[key] = messages_list
+        counter += 1
+
+        ## PROMPTS COM CONTEXTO
+        for r in range(1, len(user_msg_templates) + 1):
+            for user_msgs_combination in combinations(user_msg_templates, r):
+                key = f"prompt{counter}"
+                messages_list = [system_message, user_init_msg, *user_msgs_combination, user_method_ctx_msg]
+                messages_dict[key] = messages_list
+                counter += 1
+
+        # Save messages to a JSON file
+        output_file_path = os.path.join(output_path, "generated_messages.json")
+        if os.path.exists(output_file_path):
+            with open(output_file_path, "r") as file:
+                existing_data = json.load(file)
+        else:
+            existing_data = {}
+
+        if class_name not in existing_data:
+            existing_data[class_name] = {}
+
+        existing_data[class_name][method_info["method_name"]] = messages_dict
+
+        with open(output_file_path, "w") as file:
+            json.dump(existing_data, file, indent=4)
+
+        return messages_dict
 
 
 class CodellamaTestSuiteGenerator(TestSuiteGenerator):
@@ -19,7 +171,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         return "CODELLAMA"
 
     def _get_test_suite_class_paths(self, path: str) -> List[str]:
-        paths: list[str] = []
+        paths: List[str] = []
         for root, _, files in os.walk(path):
             paths.extend(os.path.join(root, file) for file in files if file.endswith(".java"))
         return paths
@@ -27,162 +179,20 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
     def _get_test_suite_class_names(self, test_suite_path: str) -> List[str]:
         return [os.path.basename(path).replace(".java", "") for path in self._get_test_suite_class_paths(test_suite_path)]
 
-    def load_json(self, file_path):
-        """Loads a JSON file and return its content as a dictionary"""
-        with open(file_path, "r") as file:
-            try:
-                content = json.load(file)
-            except json.JSONDecodeError:
-                content = {}
-        return content
-
-    def save_json(self, file_path, content):
-        """Saves a dictionary as a JSON file"""
-        with open(file_path, "w") as file:
-            json.dump(content, file, indent=4)
-
-    def build_test_prompt(self, method_info: Dict[str, str], full_class_name: str) -> List[Dict[str, str]]:
-        """Builds the test prompt messages for the given method information and class name"""
-        class_name = full_class_name.split('.')[-1]
-        class_fields: Union[str, List[str]] = method_info.get("class_fields", [])
-        constructor_codes: Union[str, List[str]] = method_info.get("constructor_codes", [])
-        method_code = method_info.get("method_code", "")
-        test_template = method_info.get("test_template", "")
-        messages: List[Dict[str, str]] = [
-            {
-                "role": "system",
-                "content":"""
-You are a senior Java developer with expertise in JUnit testing.
-Your only task is to generate JUnit test methods based on the provided Java class details, using Java syntax.
-
-Follow these guidelines:
-
-1. Provide only the JUnit test code, written in Java syntax, and nothing else.
-2. Fully implement the test methods, including the actual test logic (assertEquals, assertTrue, etc.), starting with @Test.
-3. Exclude any setup/teardown code or content outside the test method itself.
-4. Do not include explanations, titles, Markdown text, backticks (```), or list formatting.
-5. Use comment blocks /* */ or // for extra text, such as comments, titles, explanations, or any additional details within the code.
-6. Ensure that the generated output is completely functional as code, compiles successfully, and runs without errors.
-"""
-            },
-            {
-                "role": "user",
-                "content":"""
-Below, you will find additional information regarding the Class Under Test (DFPBaseSample):
-Class fields:
-public String text;
-
-Constructors:
-public DFPBaseSample(String text) {
-		this.text = text;
-	}
-
-Target Method Under Test:
-public void cleanText() {
-		DFPBaseSample inst = new DFPBaseSample(text);
-		inst.normalizeWhiteSpace();
-		inst.removeComments();
-		this.text = inst.text;
-	}""" + f"""
-
-Here is the test template:
-{test_template}
-
-Tests to replace the #TEST_METHODS# placeholder:"""
-            },
-            {
-                "role": "assistant",
-                "content": """
-@Test
-public void test00() {
-    DFPBaseSample sample = new DFPBaseSample("This is a sample text");
-    sample.cleanText();
-    assertEquals("This is a sample text", sample.getText());
-}
-
-@Test
-public void test01() {
-    DFPBaseSample sample1 = new DFPBaseSample("Hello  World");
-    DFPBaseSample sample2 = sample1;
-    sample1.cleanText();
-    sample2.normalizeWhiteSpace();
-    sample2.removeComments();
-    assertEquals(sample1.getText(), sample2.getText());
-}"""
-            },
-            {
-                "role": "user",
-                "content":f"""
-Below, you will find additional information regarding the Class Under Test ({class_name}):
-Class fields:
-""" + "\n".join(class_fields) + """
-
-Constructors:
-""" + "\n".join(constructor_codes) + f"""
-
-Target Method Under Test:
-{method_code}
-
-Here is the test template:
-{test_template}
-
-Tests to replace the #TEST_METHODS# placeholder:"""
-            }
-        ]
-
-        return messages
-
-    def generate_output(self, messages: List[Dict[str, str]], api_params: Any) -> Dict[str, str]:
-        """Generates the output using the API and returns the response and time duration"""
-        timeout_seconds = api_params["codellama"].get("timeout_seconds", 60)
-        api_url = api_params["codellama"].get("api_url", "http://localhost:11434/api/chat")
-        temperature = api_params["codellama"].get("temperature", 0)
-        model = api_params["codellama"].get("model", "codellama:70b")
-
-        headers = {"Content-Type": "application/json"}
-        payload = {
-            "model": model,
-            "messages": messages,
-            "stream": False,
-            "options": {"temperature": temperature},
-        }
-
-        logging.debug("Starting API request...")
-
-        try:
-            response = requests.post(api_url, headers=headers, json=payload, timeout=timeout_seconds)
-            response.raise_for_status()
-            logging.debug("Request successful. Status: %s", response.status_code)
-
-            result = response.json()
-
-            return {
-                "response": result.get("message", {}).get("content", "Response not found."),
-                "total_duration": result.get("total_duration", 0)
-            }
-
-        except requests.exceptions.Timeout:
-            logging.error("Exceeded total timeout of %s seconds. Aborting.", timeout_seconds)
-            return {"error": "Total timeout exceeded"}
-
-        except requests.exceptions.RequestException as e:
-            logging.error("Request error: %s", e)
-            return {"error": "Request error"}
-
-        except json.JSONDecodeError:
-            logging.error("JSON decoding error: %s", response.text)
-            return {"error": "Response decoding error"}
-
     def save_output(self, test_template: str, output: str, dir: str, output_file_name: str) -> None:
         """Saves the output generated by the model to a file, replacing #TEST_METHODS# in the template."""
-        # Remove <think> tags and Java code blocks
-        output = re.sub(r'<think>.*?</think>|```java|```', '', output, flags=re.DOTALL)
+        # Remove content between <think> tags
+        output = re.sub(r'<think>.*?</think>', '', output, flags=re.DOTALL)
+
+        # Extract only the content inside ``` blocks (excluding the ``` markers)
+        matches = re.findall(r'```(?:\w+)?\n?(.*?)```', output, flags=re.DOTALL)
+        output = '\n'.join(matches).strip()
 
         # Remove lines starting with "number. <text>" (e.g., "1. public void test() {...}")
         output = re.sub(r"^\d+\.\s.*$", "", output, flags=re.MULTILINE)
 
-        # Look for @Before, @BeforeClass, or @BeforeAll first; fallback to @Test if none are found
-        markers = ["@Before", "@BeforeClass", "@BeforeAll", "@Test"]
+        # Look for @Before, @BeforeClass first; fallback to @Test if none are found
+        markers = ["@Before", "@BeforeClass", "@Test"]
         index = min((output.find(marker) for marker in markers if marker in output), default=-1)
 
         # Keep only the content starting from the first found annotation
@@ -262,31 +272,52 @@ Tests to replace the #TEST_METHODS# placeholder:"""
             logging.error(f"An error occurred while extracting class info for '{full_class_name}': {e}")
             raise e
 
-    def save_scenario_infos(self, scenario_infos_path: str, class_name: str, methods: List[str], source_code_path: str) -> None:
+    def save_scenario_infos(self, scenario_infos_path: str, class_name: str, methods: Union[List[str], List[Dict[str, str]]], source_code_path: str) -> None:
         """Stores relevant scenario information (for each class and method) in a JSON file"""
         if os.path.exists(scenario_infos_path):
-            scenario_infos_dict = self.load_json(scenario_infos_path)
+            scenario_infos_dict = load_json(scenario_infos_path)
         else:
             scenario_infos_dict = {}
 
         if class_name not in scenario_infos_dict:
             scenario_infos_dict[class_name] = []
 
-        for method in methods:
+        """
+        method_item ->
+        {
+          "method": "methodname()",
+          "leftChangesSummary": "Left does...",
+          "rightChangesSummary": "Right does..."
+        }
+
+        method_item -> "methodname()"
+        """
+        for method_item in methods:
+            if not isinstance(method_item, dict):
+                method = method_item
+                left_changes_summary = ""
+                right_changes_summary = ""
+            else:
+                method = method_item.get("method", "")
+                left_changes_summary = method_item.get("leftChangesSummary", "")
+                right_changes_summary = method_item.get("rightChangesSummary", "")
             try:
+                method = re.sub(r'\|', ',', method)
                 logging.debug("Saving scenario information for method '%s' in class '%s'", method, class_name)
                 class_fields, constructor_codes, method_code = self.extract_class_info(source_code_path, method, class_name)
 
                 scenario_infos_dict[class_name].append({
                     'class_fields': class_fields if class_fields else [],
                     'constructor_codes': constructor_codes if constructor_codes else [],
+                    'method_name': method,
                     'method_code': method_code if method_code else "",
+                    'left_changes_summary': left_changes_summary,
+                    'right_changes_summary': right_changes_summary,
                     'test_template': (
-                        "import org.junit.FixMethodOrder;\n"
                         "import org.junit.Test;\n"
-                        "import org.junit.runners.MethodSorters;\n"
+                        "import org.junit.Before;\n"
+                        "import org.junit.BeforeClass;\n"
                         "import static org.junit.Assert.*;\n\n"
-                        "@FixMethodOrder(MethodSorters.NAME_ASCENDING)\n"
                         f"public class {class_name.split('.')[-1]}_{method.split('(')[0]}Test {{\n"
                         "#TEST_METHODS#\n"
                         "}"
@@ -296,7 +327,7 @@ Tests to replace the #TEST_METHODS# placeholder:"""
             except Exception as e:
                 logging.error("Error while saving scenario information for method '%s' in class '%s': %s", method, class_name, e)
 
-        self.save_json(scenario_infos_path, scenario_infos_dict)
+        save_json(scenario_infos_path, scenario_infos_dict)
 
     def save_imports(self, class_name: str, source_code_path: str, imports_path: str) -> None:
         """Extracts import statements from the Java source code and stores them in a JSON file"""
@@ -310,7 +341,7 @@ Tests to replace the #TEST_METHODS# placeholder:"""
         captures = query.captures(tree.root_node)
 
         if os.path.exists(imports_path):
-            imports_dict = self.load_json(imports_path)
+            imports_dict = load_json(imports_path)
         else:
             imports_dict = {}
 
@@ -326,9 +357,9 @@ Tests to replace the #TEST_METHODS# placeholder:"""
                 package_name = captured_text.split()[1].rstrip(';')
                 class_imports.append(f'import {package_name}.*;\n')
 
-        self.save_json(imports_path, imports_dict)
+        save_json(imports_path, imports_dict)
 
-    def extract_individual_tests(self, output_path: str, test_template: str, class_name: str, imports: List[str], i: int) -> None:
+    def extract_individual_tests(self, output_path: str, test_template: str, class_name: str, imports: List[str], i: int, j: int, prompt_key: str, branch: str) -> None:
         """Extracts individual tests from the generated test suite and saves them to separate files"""
         llm_outputs_path = os.path.join(output_path, "llm_outputs")
         counter = 0
@@ -342,30 +373,35 @@ Tests to replace the #TEST_METHODS# placeholder:"""
                 captured_text = self.extract_snippet(source_code, node.start_byte, node.end_byte)
                 if "@Test" in captured_text:
                     test_block.append({"snippet": captured_text})
-                elif any(annotation in captured_text for annotation in ["@Before", "@BeforeClass", "@BeforeAll"]):
+                elif any(annotation in captured_text for annotation in ["@Before", "@BeforeClass"]):
                     before_block.append({"snippet": captured_text})
 
             return before_block, test_block
 
+        # Format: {i}{j}_{branch}_{class_name.split('.')[-1]}_{prompt_key}.txt
+        pattern = rf"^{i}{j}_(left|right)_{re.escape(class_name.split('.')[-1])}_{prompt_key}\.txt$"
         for file in os.listdir(llm_outputs_path):
             # Avoid processing the wrong files (from different classes)
-            pattern = rf"^{i}\d+_(left|right)_{re.escape(class_name.split('.')[-1])}\.txt$"
             if re.match(pattern, file):
+                logging.debug("Processing file: %s", file)
                 source_code_path = os.path.join(llm_outputs_path, file)
                 JAVA_LANGUAGE, source_code, tree = self.parse_code(source_code_path)
 
+                # Tree-sitter query to find method definitions with annotations
                 query_text = """
                 (method_declaration
-                    (modifiers
-                        (marker_annotation))) @method_def
+                    (modifiers [
+                        (annotation)
+                        (marker_annotation)
+                        ]
+                        )) @method_def
                 """
                 query = JAVA_LANGUAGE.query(query_text)
                 captures = query.captures(tree.root_node)
 
                 before_block, test_block = classify_annotations(captures, source_code)
-
                 for test in test_block:
-                    method_name = f"{class_name.split('.')[-1]}Test_{i}_{counter}"
+                    method_name = f"{class_name.split('.')[-1]}Test_{branch}_{prompt_key}_{j}_{i}_{counter}"
                     output_file_path = os.path.join(output_path, f"{method_name}.java")
 
                     new_template = test_template.split("public class")[0] + f"public class {method_name} {{\n"
@@ -375,16 +411,19 @@ Tests to replace the #TEST_METHODS# placeholder:"""
                         full_template += "".join(before['snippet'] for before in before_block)
 
                     snippet = test['snippet']
-                    test_method_name = snippet.split('(')[0].split()[-1]
-                    new_snippet = snippet.replace(test_method_name, f"test{i}{counter}")
+                    public_index = snippet.find('public')
+                    if public_index != -1:
+                        test_method_name = snippet[public_index:].split('(')[0].split()[-1]
+                        new_snippet = snippet.replace(test_method_name, f"test{i}{counter}")
 
-                    with open(output_file_path, "w") as f:
-                        f.write(full_template + new_snippet + "\n}")
+                        with open(output_file_path, "w") as f:
+                            f.write(full_template + new_snippet + "\n}")
 
-                    counter += 1
+                        counter += 1
 
-    def find_source_code_paths(self, input_jar: str, jar_type: str, class_name: str) -> Dict[str, str]:
+    def find_source_code_paths(self, input_jar: str, jar_type: str, class_name: str, project_name: str) -> Dict[str, str]:
         """Finds the source code files for the given class name in the specified JAR path"""
+        input_jar = input_jar.split(":")[0]
         if not os.path.exists(input_jar):
             logging.error("The provided jar path '%s' does not exist", input_jar)
             raise FileNotFoundError(f"The provided path '{input_jar}' does not exist")
@@ -423,9 +462,9 @@ Tests to replace the #TEST_METHODS# placeholder:"""
 
         return java_files
 
-    def fetch_source_code_branch(self, input_jar: str, jar_type: str, class_name: str) -> tuple:
+    def fetch_source_code_branch(self, input_jar: str, jar_type: str, class_name: str, project_name: str) -> tuple:
         """Retrieves the source code path and branch for the given JAR path"""
-        source_code_paths = self.find_source_code_paths(input_jar, jar_type, class_name.split('.')[-1])
+        source_code_paths = self.find_source_code_paths(input_jar, jar_type, class_name.split('.')[-1], project_name)
         branches = ["base", "left", "right", "merge"]
 
         branch = next((b for b in branches if b in input_jar), None)
@@ -433,7 +472,7 @@ Tests to replace the #TEST_METHODS# placeholder:"""
         if branch:
             source_code_path = source_code_paths.get(branch)
             if source_code_path:
-                return source_code_path, branch
+                return source_code_path, branch, source_code_paths
 
         available_branches = ", ".join(branches)
         raise ValueError(f"No corresponding branch found in '{input_jar}'. Available branches: {available_branches}")
@@ -448,7 +487,7 @@ Tests to replace the #TEST_METHODS# placeholder:"""
             with open(time_duration_path, "w") as file:
                 json.dump({}, file)
 
-        time_duration_dict = self.load_json(time_duration_path)
+        time_duration_dict = load_json(time_duration_path)
 
         project_data = time_duration_dict.setdefault(project_name, {})
         class_data = project_data.setdefault(class_name, {"total_duration": 0, "outputs": {}})
@@ -462,13 +501,12 @@ Tests to replace the #TEST_METHODS# placeholder:"""
         class_data["total_duration"] = round(class_data["total_duration"] + duration_rounded, 2)
 
         try:
-            self.save_json(time_duration_path, time_duration_dict)
+            save_json(time_duration_path, time_duration_dict)
         except Exception as e:
             logging.error("Error while recording duration for output '%s' in class '%s': %s", output_file_name, class_name, e)
             raise
 
     def _execute_tool_for_tests_generation(self, input_jar: str, output_path: str, scenario: MergeScenarioUnderAnalysis, use_determinism: bool) -> None:
-        """Main method for generating tests using the CODELLAMA tool"""
         config = get_config()
         api_params = config.get("api_params", {})
         if not api_params:
@@ -476,6 +514,15 @@ Tests to replace the #TEST_METHODS# placeholder:"""
 
         if not api_params.get("codellama"):
             raise ValueError("The 'codellama' section is missing from the 'api_params' configuration")
+
+        codellama_params = api_params.get("codellama", {})
+        self.api = Api(
+            api_url=codellama_params.get("api_url", "http://localhost:11434/api/chat"),
+            timeout_seconds=codellama_params.get("timeout_seconds", 60),
+            temperature=codellama_params.get("temperature", 0),
+            seed=codellama_params.get("seed", 42),
+            model=codellama_params.get("model", "codellama:70b")
+        )
 
         # Define paths for storing scenario information (for prompt generation),
         # importing data (to be extracted from source code), and recording time duration (for each output)
@@ -493,38 +540,44 @@ Tests to replace the #TEST_METHODS# placeholder:"""
 
         # Fetch the source code paths for each class and save the associated scenario information and import data
         for class_name, methods in targets.items():
-            source_code_path, branch = self.fetch_source_code_branch(input_jar, jar_type, class_name)
+            source_code_path, branch, source_paths = self.fetch_source_code_branch(input_jar, jar_type, class_name, project_name)
             self.save_scenario_infos(scenario_infos_path, class_name, methods, source_code_path)
             self.save_imports(class_name, source_code_path, imports_path)
 
         # Load scenario information and import data into dictionaries
-        scenario_infos_dict = self.load_json(scenario_infos_path)
-        imports_dict = self.load_json(imports_path)
+        scenario_infos_dict = load_json(scenario_infos_path)
+        imports_dict = load_json(imports_path)
 
         # Generate tests for each method in every class and save the results
         for class_name, scenario_infos_list in scenario_infos_dict.items():
             logging.debug("Generating tests for target methods in class '%s'", class_name)
             for i, method_info in enumerate(scenario_infos_list):
-                messages = self.build_test_prompt(method_info, class_name)
+                messages_list = self.api.generate_messages_list(method_info, class_name, branch, output_path)
                 test_template = method_info.get("test_template", "")
-                self._process_prompts(messages=messages, test_template=test_template, output_path=output_path,
+                self._process_prompts(messages_list=messages_list, test_template=test_template, output_path=output_path,
                                       branch=branch, class_name=class_name, imports=imports_dict.get(class_name, []),
-                                      i=i, time_duration_path=time_duration_path, project_name=project_name, api_params=api_params)
+                                      i=i, time_duration_path=time_duration_path, project_name=project_name)
 
-    def _process_prompts(self, messages: List[Dict[str, str]], test_template: str, output_path: str, branch: str,
+    def _process_prompts(self, messages_list: Dict[str, List[Dict[str, str]]], test_template: str, output_path: str, branch: str,
                          class_name: str, imports: List[str], i: int, time_duration_path: str, project_name: str,
-                         api_params: Any, num_outputs: int = 1) -> None:
+                         num_outputs: int = 1) -> None:
         for j in range(num_outputs):
-            output_file_name = f"{i}{j}_{branch}_{class_name.split('.')[-1]}"
-            try:
-                logging.debug("Generating output %d%d in branch \"%s\"", i, j, branch)
-                output = self.generate_output(messages, api_params)
-                response = output.get("response", "Response not found.")
-                total_duration = int(output.get("total_duration", "0") or 0)
-                self.save_output(test_template, response, output_path, output_file_name)
-            except Exception as e:
-                logging.error("Error while generating output %d%d in branch \"%s\": %s", i, j, branch, e)
-            finally:
-                self.record_output_duration(time_duration_path, output_path, class_name, output_file_name, total_duration, project_name)
+            for prompt_key, messages in messages_list.items():
+                output_file_name = f"{i}{j}_{branch}_{class_name.split('.')[-1]}_{prompt_key}"
+                self._process_single_prompt(messages, test_template, output_path, branch, class_name, imports, i, j, time_duration_path, project_name, output_file_name, prompt_key)
 
-        self.extract_individual_tests(output_path, test_template, class_name, imports, i)
+    def _process_single_prompt(self, messages: List[Dict[str, str]], test_template: str, output_path: str, branch: str,
+                               class_name: str, imports: List[str], i: int, j: int, time_duration_path: str,
+                               project_name: str, output_file_name: str, prompt_key: str) -> None:
+        try:
+            logging.debug("Processing output %d%d for prompt key '%s' in branch \"%s\"", i, j, prompt_key, branch)
+            output = self.api.generate_output(messages)
+            response = output.get("response", "Response not found.")
+            total_duration = int(output.get("total_duration", self.api.timeout_seconds))
+            self.save_output(test_template, response, output_path, output_file_name)
+        except Exception as e:
+            logging.error("Error while processing output %d%d for prompt key '%s' in branch \"%s\": %s", i, j, prompt_key, branch, e)
+        finally:
+            self.record_output_duration(time_duration_path, output_path, class_name, output_file_name, total_duration, project_name)
+
+        self.extract_individual_tests(output_path, test_template, class_name, imports, i, j, prompt_key, branch)

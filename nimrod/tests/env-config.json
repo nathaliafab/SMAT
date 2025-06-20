@@ -7,5 +7,16 @@
   "input_path": "",
   "tests_dst": "",
   "path_output_csv": "",
-  "logger_level": "DEBUG"
+  "logger_level": "DEBUG",
+  "test_suite_generators":["codellama", "evosuite", "randoop"],
+  "test_suite_generation_search_time_available":"45",
+  "api_params": {
+    "codellama": {
+      "model": "codellama:70b",
+      "api_url": "http://ip/api/chat",
+      "temperature": 0.7,
+      "seed": 42,
+      "timeout_seconds": 300
+    }
+  }
 }

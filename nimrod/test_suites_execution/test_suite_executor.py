@@ -1,8 +1,9 @@
 import logging
 import re
 import subprocess
+import json
 from os import path
-from typing import Dict, List
+from typing import Dict, List, Optional
 from nimrod.test_suite_generation.test_suite import TestSuite
 from nimrod.test_suites_execution.test_case_result import TestCaseResult
 from nimrod.tests.utils import get_base_output_path
@@ -10,6 +11,8 @@ from nimrod.tools.bin import EVOSUITE_RUNTIME, JACOCOAGENT, JUNIT, JUNIT_5
 from nimrod.tools.java import TIMEOUT, Java
 from nimrod.tools.jacoco import Jacoco
 from nimrod.utils import generate_classpath
+
+EXECUTION_LOG_FILE = "execution_results.json"
 
 def is_failed_caused_by_compilation_problem(test_case_name: str, failed_test_message: str) -> bool:
     my_regex = re.escape(test_case_name) + r"[0-9A-Za-z0-9_\(\.\)\n \:]+(NoSuchMethodError|NoSuchFieldError|NoSuchClassError|NoClassDefFoundError|NoSuchAttributeError|tried to access method)"
@@ -34,9 +37,39 @@ class TestSuiteExecutor:
     def execute_test_suite(self, test_suite: TestSuite, jar: str, number_of_executions: int = 3) -> Dict[str, TestCaseResult]:
         results: Dict[str, TestCaseResult] = dict()
 
+        # Load existing log if it exists
+        try:
+            with open(EXECUTION_LOG_FILE, "r") as log_file:
+                execution_log = json.load(log_file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            execution_log = {}
+
         for test_class in test_suite.test_classes_names:
             logging.debug("Test class: %s", test_class)
+            if test_suite.generator_name == "EVOSUITE":
+                class_file_path = path.join(test_suite.path, f"classes/{test_class.replace('.', '/')}.class")
 
+            else:
+                class_file_path = path.join(test_suite.path, f"classes/{test_class}.class")
+
+            if not path.exists(class_file_path):
+                logging.warning("Class file %s does not exist; skipping execution", class_file_path)
+                continue
+
+            if test_class not in execution_log:
+                execution_log[test_class] = []
+
+            # Check if the current test_suite.path is already in the log
+            test_suite_entry = next((entry for entry in execution_log[test_class] if test_suite.path in entry), None)
+            if not test_suite_entry:
+                test_suite_entry = {test_suite.path: {"jar": {}}}
+                execution_log[test_class].append(test_suite_entry)
+
+            # Ensure the JAR is tracked under the current test_suite.path
+            if jar not in test_suite_entry[test_suite.path]["jar"]:
+                test_suite_entry[test_suite.path]["jar"][jar] = []
+
+            # Append execution results for the current JAR
             for i in range(0, number_of_executions):
                 logging.info("Starting execution %d of %s from suite %s", i + 1, test_class, test_suite.path)
                 response = self._execute_junit(test_suite, jar, test_class)
@@ -47,6 +80,14 @@ class TestSuiteExecutor:
                         results[test_fqname] = TestCaseResult.FLAKY
                     elif not results.get(test_fqname):
                         results[test_fqname] = test_case_result
+
+                test_suite_entry[test_suite.path]["jar"][jar].append({
+                    "execution_number": i + 1,
+                    "result": {test_case: str(test_case_result) for test_case, test_case_result in response.items()}
+                })
+
+        with open(EXECUTION_LOG_FILE, "w") as log_file:
+            json.dump(execution_log, log_file, indent=4)
 
         return results
 
@@ -65,20 +106,32 @@ class TestSuiteExecutor:
             command = self._java.exec_java(test_suite.path, self._java.get_env(), TIMEOUT, *params)
             output = command.decode('unicode_escape')
 
+            if test_suite.generator_name == "CODELLAMA":
+                #HSaslThriftClientTest_right_prompt1_0_39.java
+                #test_class_num = "39"
+                #HSaslThriftClientTest_right_prompt1_1_39.java
+                #test_class_num = "139"
+                parts = test_class.replace(".java", "").split("_")
+                test_class_num = parts[-2] + parts[-1]
+                return self._parse_test_results_from_output(output, test_class_num)
             return self._parse_test_results_from_output(output)
         except subprocess.CalledProcessError as error:
             output = error.output.decode('unicode_escape')
             return self._parse_test_results_from_output(output)
 
-    def _parse_test_results_from_output(self, output: str) -> Dict[str, TestCaseResult]:
+    def _parse_test_results_from_output(self, output: str, test_class_num: Optional[str] = None) -> Dict[str, TestCaseResult]:
         results: Dict[str, TestCaseResult] = dict()
 
         success_match = re.search(r'OK \((?P<number_of_tests>\d+) tests?\)', output)
         if success_match:
-            number_of_tests = int(success_match.group('number_of_tests'))
-            for i in range(0, number_of_tests):
-                test_case_name = 'test{number:0{width}d}'.format(width=len(str(number_of_tests)), number=i)
+            if test_class_num:
+                test_case_name = f'test{test_class_num}'
                 results[test_case_name] = TestCaseResult.PASS
+            else:
+                number_of_tests = int(success_match.group('number_of_tests'))
+                for i in range(0, number_of_tests):
+                    test_case_name = 'test{number:0{width}d}'.format(width=len(str(number_of_tests)), number=i)
+                    results[test_case_name] = TestCaseResult.PASS
         else:
             failed_tests = re.findall(r'(?P<test_case_name>test\d+)\([A-Za-z0-9_.]+\)', output)
             for failed_test in failed_tests:
@@ -91,8 +144,14 @@ class TestSuiteExecutor:
                 if results:
                     for i in range(0, test_run_count):
                         test_case_name = 'test{number:0{width}d}'.format(width=len(str(test_run_count)), number=i)
-                        if not results.get(test_case_name):
+                        if not results.get(test_case_name) and test_run_count > 1:
                             results[test_case_name] = TestCaseResult.PASS
+        if not results:
+            if test_class_num:
+                test_case_name = f'test{test_class_num}'
+            else:
+                test_case_name = 'test0'
+            results[test_case_name] = TestCaseResult.NOT_EXECUTABLE
         return results
 
     def execute_test_suite_with_coverage(self, test_suite: TestSuite, target_jar: str, test_cases: List[str]) -> str:

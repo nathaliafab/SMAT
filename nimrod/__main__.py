@@ -98,7 +98,7 @@ def main():
     if scenario.run_analysis:
       smat.run_tool_for_semmantic_conflict_detection(scenario)
     else:
-      logging.info(f"Skipping tool execution for project f{scenario.project_name}")
+      logging.info(f"Skipping tool execution for project {scenario.project_name}")
 
 
 if __name__ == '__main__':
