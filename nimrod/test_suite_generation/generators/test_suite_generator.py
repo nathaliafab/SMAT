@@ -99,5 +99,4 @@ class TestSuiteGenerator(ABC):
                 output = (e.stdout or b'').decode("utf-8", errors="ignore") + (e.stderr or b'').decode("utf-8", errors="ignore")
                 logging.error("Error while compiling %s", java_file)
             self._update_compilation_results(test_suite_path, java_file, output)
-        
         return class_path
