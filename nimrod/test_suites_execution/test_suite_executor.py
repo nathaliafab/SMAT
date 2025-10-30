@@ -112,7 +112,11 @@ class TestSuiteExecutor:
                 #HSaslThriftClientTest_right_prompt1_1_39.java
                 #test_class_num = "139"
                 parts = test_class.replace(".java", "").split("_")
-                test_class_num = parts[-2] + parts[-1]
+                if len(parts) >= 2:
+                    test_class_num = parts[-2] + parts[-1]
+                else:
+                    logging.warning(f"Unexpected test_class format: '{test_class}'. Unable to extract test_class_num, defaulting to '0'.")
+                    test_class_num = "0"
                 return self._parse_test_results_from_output(output, test_class_num)
             return self._parse_test_results_from_output(output)
         except subprocess.CalledProcessError as error:
