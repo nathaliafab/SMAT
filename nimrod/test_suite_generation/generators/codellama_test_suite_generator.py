@@ -269,7 +269,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
             return class_fields, class_constructors, class_method
 
         except Exception as e:
-            logging.error(f"An error occurred while extracting class info for '{full_class_name}': {e}")
+            logging.error("An error occurred while extracting class info for '%s': %s", full_class_name, e)
             raise e
 
     def save_scenario_infos(self, scenario_infos_path: str, class_name: str, methods: Union[List[str], List[Dict[str, str]]], source_code_path: str) -> None:
