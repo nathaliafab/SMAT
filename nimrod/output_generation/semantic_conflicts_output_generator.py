@@ -42,7 +42,7 @@ class SemanticConflictsOutputGenerator(OutputGenerator[List[SemanticConflictsOut
 
             except Exception as e:
                 # If we cannot execute the test suite with coverage, we log the error and continue.
-                logging.error(f"Error executing test suite with coverage for semantic conflict: {e}")
+                logging.error("Error executing test suite with coverage for semantic conflict: %s", e)
 
             finally:
                 report_data.append({
