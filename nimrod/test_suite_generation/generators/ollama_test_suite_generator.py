@@ -71,7 +71,6 @@ class Api:
         try:
             self.set_payload_messages(messages)
             response = self.post(self.payload)
-            #logging.debug("Response: %s", response)
             return {
                 "response": response.get("message", {}).get("content", "Response not found."),
                 "total_duration": response.get("total_duration", self.timeout_seconds),
