@@ -107,10 +107,6 @@ class TestSuiteExecutor:
             output = command.decode('unicode_escape')
 
             if test_suite.generator_name == "OLLAMA":
-                #HSaslThriftClientTest_right_prompt1_0_39.java
-                #test_class_num = "39"
-                #HSaslThriftClientTest_right_prompt1_1_39.java
-                #test_class_num = "139"
                 parts = test_class.replace(".java", "").split("_")
                 if len(parts) >= 2:
                     test_class_num = parts[-2] + parts[-1]
