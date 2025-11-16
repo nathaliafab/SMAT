@@ -131,9 +131,9 @@ class JUnit:
         list_failed_tests = []
 
         list_failed_tests = re.findall(r'test[0-9]+\([A-Za-z0-9_.]+\)', output)
-        number_executed_tests = int(re.findall('Tests run: \d+', output)[0].split("Tests run: ")[-1])
+        number_executed_tests = int(re.findall(r'Tests run: \d+', output)[0].split("Tests run: ")[-1])
         for test in list_failed_tests:
-            i = re.findall('\d+', test)
+            i = re.findall(r'\d+', test)
             test_case = re.findall(r'.+?(?=\()', test)[0]
             file = str(re.findall(r'\(.+?(?=\))', test)[0]).split(".")[-1] #re.findall(r'\(.+?(?=\))', test)[0][1:].to_s.split(".")[-1]
 

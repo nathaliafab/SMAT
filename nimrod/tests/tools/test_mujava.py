@@ -42,7 +42,7 @@ class TestMuJava(TestCase):
         mujava = MuJava(self.java, calculator_mutants_dir())
         
         mutants = mujava.read_log()
-        self.assertEquals(3, len(mutants))
+        self.assertEqual(3, len(mutants))
 
     def test_not_found_log(self):
         mujava = MuJava(self.java, calculator_mutants_dir())

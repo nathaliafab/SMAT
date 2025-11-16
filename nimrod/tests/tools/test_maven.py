@@ -81,8 +81,8 @@ class TestMaven(TestCase):
                   '/a/b/c/target/classes\n[INFO] 0asdjhaskdjf Compiling')
         results = Maven.extract_results(output)
 
-        self.assertEquals(6, results.source_files)
-        self.assertEquals('/a/b/c/target/classes', results.classes_dir)
+        self.assertEqual(6, results.source_files)
+        self.assertEqual('/a/b/c/target/classes', results.classes_dir)
 
     @staticmethod
     def _clear_environment():

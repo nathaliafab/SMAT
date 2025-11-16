@@ -97,7 +97,7 @@ class Evosuite(SuiteGenerator):
     def get_format_evosuite_method_name(self):
         method_name = ""
         try:
-            pattern = re.compile("\.[a-zA-Z0-9\-\_]*\([\s\S]*")
+            pattern = re.compile(r"\.[a-zA-Z0-9\-\_]*\([\s\S]*")
             result = pattern.search(self.sut_method)
             method_name = result.group(0)[1:]
         except Exception as e:

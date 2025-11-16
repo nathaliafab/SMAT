@@ -48,7 +48,7 @@ class Jacoco:
 
     def parseDuplicatedFile(self, message_error):
         "Exception in thread \"main\" java.util.zip.ZipException: duplicate entry: META-INF/LICENSE.txt"
-        x = re.search("duplicate entry\: .*", message_error, re.IGNORECASE)
+        x = re.search(r"duplicate entry: .*", message_error, re.IGNORECASE)
         if x:
             fileName = str(message_error.split("duplicate entry: ")[1]).split("\n")[0]
             if ("$" in fileName):

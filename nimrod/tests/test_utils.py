@@ -22,7 +22,7 @@ class TestUtils(TestCase):
         self.java = Java(self.java_home)
         self.maven = Maven(self.java, self.maven_home)
 
-        self.maven.compile(calculator_project_dir(), 10)
+        self.maven.compile(calculator_project_dir(), 20)
 
     def test_get_files(self):
         classes = get_files(calculator_target_dir())
