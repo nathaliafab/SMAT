@@ -41,6 +41,7 @@ class OutputGenerator(ABC, Generic[T]):
         logging.info(f"Finished generation of {self._report_name} report")
 
     def _load_existing_data(self, file_path: str):
+        """Loads data stored from previous runs so new data is appended instead of overwriting."""
         if not path.exists(file_path):
             return []
         try:
@@ -50,5 +51,6 @@ class OutputGenerator(ABC, Generic[T]):
             return []
 
     def _write_json(self, file_path: str, data) -> None:
+        """Writes data to a JSON file with indentation for readability."""
         with open(file_path, "w") as write_file:
             json.dump(data, write_file, indent=4)
