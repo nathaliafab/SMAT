@@ -165,10 +165,10 @@ class Api:
         return messages_dict
 
 
-class CodellamaTestSuiteGenerator(TestSuiteGenerator):
+class OllamaTestSuiteGenerator(TestSuiteGenerator):
 
     def get_generator_tool_name(self) -> str:
-        return "CODELLAMA"
+        return "OLLAMA"
 
     def _get_test_suite_class_paths(self, path: str) -> List[str]:
         paths: List[str] = []
@@ -512,16 +512,16 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         if not api_params:
             raise ValueError("The 'api_params' section is missing from the configuration file")
 
-        if not api_params.get("codellama"):
-            raise ValueError("The 'codellama' section is missing from the 'api_params' configuration")
+        if not api_params.get("ollama"):
+            raise ValueError("The 'ollama' section is missing from the 'api_params' configuration")
 
-        codellama_params = api_params.get("codellama", {})
+        ollama_params = api_params.get("ollama", {})
         self.api = Api(
-            api_url=codellama_params.get("api_url", "http://localhost:11434/api/chat"),
-            timeout_seconds=codellama_params.get("timeout_seconds", 60),
-            temperature=codellama_params.get("temperature", 0),
-            seed=codellama_params.get("seed", 42),
-            model=codellama_params.get("model", "codellama:70b")
+            api_url=ollama_params.get("api_url", "http://localhost:11434/api/chat"),
+            timeout_seconds=ollama_params.get("timeout_seconds", 60),
+            temperature=ollama_params.get("temperature", 0),
+            seed=ollama_params.get("seed", 42),
+            model=ollama_params.get("model", "codellama:70b")
         )
 
         # Define paths for storing scenario information (for prompt generation),
@@ -532,7 +532,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
         time_duration_path = os.path.join(
             os.path.dirname(
                 os.path.dirname(
-                    os.path.dirname(output_path))), "reports", "codellama_time_duration.json")
+                    os.path.dirname(output_path))), "reports", "ollama_time_duration.json")
 
         project_name = scenario.project_name
         targets = scenario.targets

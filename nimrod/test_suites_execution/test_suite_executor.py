@@ -106,7 +106,7 @@ class TestSuiteExecutor:
             command = self._java.exec_java(test_suite.path, self._java.get_env(), TIMEOUT, *params)
             output = command.decode('unicode_escape')
 
-            if test_suite.generator_name == "CODELLAMA":
+            if test_suite.generator_name == "OLLAMA":
                 #HSaslThriftClientTest_right_prompt1_0_39.java
                 #test_class_num = "39"
                 #HSaslThriftClientTest_right_prompt1_1_39.java
