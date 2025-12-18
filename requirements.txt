@@ -1,5 +1,6 @@
 beautifulsoup4
 setuptools
-tree_sitter
-tree_sitter_java
+tree_sitter==0.25.1
+tree_sitter_java==0.23.5
+requests
 types-requests

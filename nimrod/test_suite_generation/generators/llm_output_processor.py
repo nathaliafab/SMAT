@@ -56,7 +56,7 @@ class LLMOutputProcessor:
     by applying a series of sanitization rules in sequence.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._rules: List[OutputSanitizationRule] = []
         self._load_default_rules()
     
