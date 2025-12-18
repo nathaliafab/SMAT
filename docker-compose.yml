@@ -1,0 +1,17 @@
+services:
+  smat:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        USER_ID: ${USER_ID}
+        GROUP_ID: ${GROUP_ID}
+    image: smat-ubuntu
+    container_name: smat_container
+    volumes:
+      # Mount the current directory to /app in the container
+      - .:/app
+      # Mount the dataset directory to /data/dataset in the container (read-only)
+      - /path/to/your/mergedataset/:/data/dataset:ro
+    stdin_open: true
+    tty: true

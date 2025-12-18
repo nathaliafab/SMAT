@@ -47,4 +47,4 @@ jobs:
         cd /home/runner/work/$repo_name/$repo_name
     - name: Test with pytest
       run: |
-        pytest -k 'not test_general_behavior_study_semantic_conflict'
+        pytest -k 'not test_general_behavior_study_semantic_conflict' --color=yes
