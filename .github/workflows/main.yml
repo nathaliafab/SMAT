@@ -35,13 +35,12 @@ jobs:
         distribution: 'temurin'
         java-version: '8'
     - name: Setup Maven
-      uses: stCarolas/setup-maven@v4.1
+      uses: stCarolas/setup-maven@v5
     - name: Creating env-config.json
       run: |
         repo_name=$(basename $GITHUB_REPOSITORY)
         cd /home/runner/work/$repo_name/$repo_name/nimrod/tests/
-        java_path="/opt/hostedtoolcache/Java_Adopt_jdk/$(ls /opt/hostedtoolcache/Java_Adopt_jdk)/x64"
-        contents="$(jq --arg java_path "$java_path" '.java_home=$java_path | .maven_home = "/opt/hostedtoolcache/maven/3.5.4/x64"' env-config.json)"
+        contents="$(jq --arg java_path "$JAVA_HOME" '.java_home=$java_path | .maven_home = "/opt/hostedtoolcache/maven/3.5.4/x64"' env-config.json)"
         echo "${contents}" > env-config.json
         cd /home/runner/work/$repo_name/$repo_name
     - name: Test with pytest
