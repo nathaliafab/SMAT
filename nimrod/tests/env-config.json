@@ -10,8 +10,9 @@
   "logger_level": "DEBUG",
   "test_suite_generators":["ollama", "evosuite", "randoop"],
   "test_suite_generation_search_time_available":"45",
+  "prompt_template": "zero_shot",
   "api_params": {
-    "ollama": {
+    "codellama-70b": {
       "model": "codellama:70b",
       "api_url": "http://ip/api/chat",
       "temperature": 0.7,

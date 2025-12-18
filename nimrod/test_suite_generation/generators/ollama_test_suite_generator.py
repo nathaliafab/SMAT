@@ -1,16 +1,16 @@
 import json
 import logging
 import os
-import requests
+import requests  # type: ignore
 from typing import List, Dict, Union, Any, Optional
-from itertools import combinations
 import re
 
 import tree_sitter_java as tsjava
-from tree_sitter import Language, Parser
+from tree_sitter import Language, Parser, QueryCursor
 
 from nimrod.core.merge_scenario_under_analysis import MergeScenarioUnderAnalysis
 from nimrod.test_suite_generation.generators.test_suite_generator import TestSuiteGenerator
+from nimrod.test_suite_generation.generators.prompt_manager import PromptManager
 from nimrod.tests.utils import get_config
 from nimrod.utils import load_json, save_json
 
@@ -73,101 +73,119 @@ class Api:
             response = self.post(self.payload)
             return {
                 "response": response.get("message", {}).get("content", "Response not found."),
-                "total_duration": response.get("total_duration", self.timeout_seconds),
+                "total_duration": response.get("total_duration", self.timeout_seconds * 1_000_000_000),
             }
         except Exception as e:
             logging.error(f"Error generating output: {e}")
-            return {"error": "Output generation error"}
+            return {"error": "Output generation error", "total_duration": self.timeout_seconds * 1_000_000_000}
         
-    def generate_messages_list(self, method_info: Dict[str, str], full_class_name: str,
-                               branch: str, output_path: str) -> Dict[str, List[Dict[str, str]]]:
-        """
-        Generates the messages for the API requests.
-        Each list of messages contains different information about the method under test.
-        """
-        self.set_branch(branch)  # Set the branch
-        class_name = full_class_name.split('.')[-1]
-        method_name = method_info.get("method_name", "")
-        class_fields: Union[str, List[str]] = method_info.get("class_fields", [])
-        constructor_codes: Union[str, List[str]] = method_info.get("constructor_codes", [])
-        method_code = method_info.get("method_code", "")
-        left_changes_summary = method_info.get("left_changes_summary", "")
-        right_changes_summary = method_info.get("right_changes_summary", "")
-
-
-        ######################################################
-        ## PROMPTS INCREMENTAL COMBINATIONS
-        system_message = {
-            "role": "system",
-            "content": (
-                "You are a senior Java developer with expertise in JUnit testing.\n"
-                "Your task is to provide JUnit tests for the given method in the class under test, "
-                "considering the changes introduced in the left and right branches.\n"
-                "You have to answer with the test code only, inside code blocks (```).\n"
-                "The tests should start with @Test."
-            ),
-        }
-
-        user_init_msg = {
-            "role": "user",
-            "content": f"""Here is the context of the method under test in the class {class_name} on the {branch} branch:""",
-        }
-
-        user_msg_templates = [
-            {"role": "user", "content": f"{left_changes_summary}\n{right_changes_summary}"},
-            {"role": "user", "content": f"Class fields:\n" + "\n".join(class_fields)},
-            {"role": "user", "content": f"Constructors:\n" + "\n".join(constructor_codes)},
-        ]
-
-        user_method_ctx_msg = {
-                "role": "user",
-                "content": (
-                f"Target Method Under Test:\n{method_code}\n\n"
-                "Now generate JUnit tests for the method under test, considering the given context. Remember to create meaningful assertions.\n"
-                "Write all tests inside code blocks (```), and start each test with @Test."
-            ),
-        }
-
-        messages_dict: Dict[str, List[Dict[str, str]]] = {}
-        counter = 1
-
-        ## PROMPT SEM CONTEXTO
-        key = f"prompt{counter}"
-        messages_list = [system_message, user_init_msg, user_method_ctx_msg]
-        messages_dict[key] = messages_list
-        counter += 1
-
-        ## PROMPTS COM CONTEXTO
-        for r in range(1, len(user_msg_templates) + 1):
-            for user_msgs_combination in combinations(user_msg_templates, r):
-                key = f"prompt{counter}"
-                messages_list = [system_message, user_init_msg, *user_msgs_combination, user_method_ctx_msg]
-                messages_dict[key] = messages_list
-                counter += 1
-
-        # Save messages to a JSON file
-        output_file_path = os.path.join(output_path, "generated_messages.json")
-        if os.path.exists(output_file_path):
-            with open(output_file_path, "r") as file:
-                existing_data = json.load(file)
-        else:
-            existing_data = {}
-
-        if class_name not in existing_data:
-            existing_data[class_name] = {}
-
-        existing_data[class_name][method_info["method_name"]] = messages_dict
-
-        with open(output_file_path, "w") as file:
-            json.dump(existing_data, file, indent=4)
-
-        return messages_dict
-
 
 class OllamaTestSuiteGenerator(TestSuiteGenerator):
 
+    def __init__(self, java_tool, model_key: str = "codellama", model_config: Optional[Dict[str, Any]] = None):
+        super().__init__(java_tool)
+        self.model_key = model_key
+        self.model_config = model_config or {}
+        self.api: Optional[Api] = None
+        self.prompt_manager = PromptManager()
+
+        # Loads global configurations
+        global_config = get_config()
+
+        # Prompt configurations (priority: model_config > global_config > default)
+        self.prompt_template = (
+            self.model_config.get("prompt_template") or 
+            global_config.get("prompt_template") or 
+            "zero_shot"
+        )
+        
+        logging.info(f"Initialized {self.model_key} with prompt template: {self.prompt_template}")
+
+    def generate_messages_list(self, method_info: Dict[str, str], full_class_name: str,
+                               branch: str, output_path: str) -> Dict[str, List[Dict[str, str]]]:
+        """
+        Generates messages for API requests using the configurable prompt system.
+        Supports different templates (zero-shot, one-shot) and context combinations.
+        """
+        api = self._get_api_instance()
+        api.set_branch(branch)  # Set the branch
+        class_name = full_class_name.split('.')[-1]
+        method_name = method_info.get("method_name", "")
+        
+        logging.debug(f"Generating messages for {class_name}.{method_name} using template: {self.prompt_template}")
+
+        # Generates messages using the PromptManager
+        messages_dict = self.prompt_manager.generate_all_combinations(
+            method_info=method_info,
+            class_name=class_name,
+            branch=branch,
+            template_name=self.prompt_template
+        )
+        
+        # Saves generated messages
+        self.prompt_manager.save_generated_messages(
+            messages_dict=messages_dict,
+            output_path=output_path,
+            class_name=class_name,
+            method_name=method_name
+        )
+        
+        logging.info(f"Generated {len(messages_dict)} prompt variations for {class_name}.{method_name}")
+
+        return messages_dict
+    
+    def _ensure_api_initialized(self) -> Api:
+        """Initializes the API if it has not been initialized yet and returns the instance."""
+        if self.api is not None:
+            return self.api
+            
+        config = get_config()
+        api_params = config.get("api_params", {})
+        if not api_params:
+            raise ValueError("The 'api_params' section is missing from the configuration file")
+
+        # Use the specific model configuration for this generator instance
+        if self.model_config:
+            model_params = self.model_config
+        else:
+            if not api_params.get(self.model_key):
+                raise ValueError(f"The '{self.model_key}' section is missing from the 'api_params' configuration")
+            model_params = api_params.get(self.model_key, {})
+
+        self.api = Api(
+            api_url=model_params.get("api_url", "http://localhost:11434/api/chat"),
+            timeout_seconds=model_params.get("timeout_seconds", 60),
+            temperature=model_params.get("temperature", 0),
+            seed=model_params.get("seed", 42),
+            model=model_params.get("model", "codellama:70b")
+        )
+        return self.api
+
+    def _get_api_instance(self) -> Api:
+        """Returns a valid API instance, initializing it if necessary."""
+        return self._ensure_api_initialized()
+
     def get_generator_tool_name(self) -> str:
-        return "OLLAMA"
+        self._get_api_instance()
+        config_suffix = self._generate_config_suffix()
+        return f"{self.model_key.upper()}{config_suffix}"
+    
+    def _generate_config_suffix(self) -> str:
+        """Generates a suffix with configuration information for folder identification"""
+        if not self.api:
+            return ""
+
+        # Prompt format: ZS (zero-shot) or 1S (one-shot)
+        prompt_code = "ZS" if self.prompt_template == "zero_shot" else "1S"
+
+        # Temperature: T00, T05, T07, etc. (always with 2 digits)
+        temp_value = int(self.api.temperature * 100)  # 0.7 -> 70, 0.05 -> 5, 0 -> 0
+        temp_code = f"T{temp_value:02d}"  # Formats with 2 digits: T00, T05, T07
+
+        # Seed: S123, S42, etc.
+        seed_code = f"S{self.api.seed}"
+        
+        return f"_{prompt_code}_{temp_code}_{seed_code}"
 
     def _get_test_suite_class_paths(self, path: str) -> List[str]:
         paths: List[str] = []
@@ -246,7 +264,13 @@ class OllamaTestSuiteGenerator(TestSuiteGenerator):
                 )
             """
             query = JAVA_LANGUAGE.query(query_text)
-            captures = query.captures(tree.root_node)
+            cursor = QueryCursor(query)
+            captures_dict = cursor.captures(tree.root_node)
+
+            captures = []
+            for capture_name, nodes in captures_dict.items():
+                for node in nodes:
+                    captures.append((node, capture_name))
 
             if not captures:
                 raise Exception(f"No captures found for the class '{class_name}' in '{source_code_path}'")
@@ -337,7 +361,13 @@ class OllamaTestSuiteGenerator(TestSuiteGenerator):
         (package_declaration) @package
         """
         query = JAVA_LANGUAGE.query(query_text)
-        captures = query.captures(tree.root_node)
+        cursor = QueryCursor(query)
+        captures_dict = cursor.captures(tree.root_node)
+        
+        captures = []
+        for capture_name, nodes in captures_dict.items():
+            for node in nodes:
+                captures.append((node, capture_name))
 
         if os.path.exists(imports_path):
             imports_dict = load_json(imports_path)
@@ -396,7 +426,13 @@ class OllamaTestSuiteGenerator(TestSuiteGenerator):
                         )) @method_def
                 """
                 query = JAVA_LANGUAGE.query(query_text)
-                captures = query.captures(tree.root_node)
+                cursor = QueryCursor(query)
+                captures_dict = cursor.captures(tree.root_node)
+                
+                captures = []
+                for capture_name, nodes in captures_dict.items():
+                    for node in nodes:
+                        captures.append((node, capture_name))
 
                 before_block, test_block = classify_annotations(captures, source_code)
                 for test in test_block:
@@ -506,32 +542,21 @@ class OllamaTestSuiteGenerator(TestSuiteGenerator):
             raise
 
     def _execute_tool_for_tests_generation(self, input_jar: str, output_path: str, scenario: MergeScenarioUnderAnalysis, use_determinism: bool) -> None:
-        config = get_config()
-        api_params = config.get("api_params", {})
-        if not api_params:
-            raise ValueError("The 'api_params' section is missing from the configuration file")
-
-        if not api_params.get("ollama"):
-            raise ValueError("The 'ollama' section is missing from the 'api_params' configuration")
-
-        ollama_params = api_params.get("ollama", {})
-        self.api = Api(
-            api_url=ollama_params.get("api_url", "http://localhost:11434/api/chat"),
-            timeout_seconds=ollama_params.get("timeout_seconds", 60),
-            temperature=ollama_params.get("temperature", 0),
-            seed=ollama_params.get("seed", 42),
-            model=ollama_params.get("model", "codellama:70b")
-        )
+        self._get_api_instance()
 
         # Define paths for storing scenario information (for prompt generation),
         # importing data (to be extracted from source code), and recording time duration (for each output)
         scenario_infos_path = os.path.join(output_path, "scenario_infos.json")
         imports_path = os.path.join(output_path, "imports.json")
         # Save time duration data in the 'reports' folder, located next to the 'projects' folder
+        # Generates config suffix for the duration file
+        config_suffix = self._generate_config_suffix().replace("_", "") if hasattr(self, '_generate_config_suffix') else ""
+        duration_filename = f"{self.model_key}{config_suffix}_time_duration.json"
+        
         time_duration_path = os.path.join(
             os.path.dirname(
                 os.path.dirname(
-                    os.path.dirname(output_path))), "reports", "ollama_time_duration.json")
+                    os.path.dirname(output_path))), "reports", duration_filename)
 
         project_name = scenario.project_name
         targets = scenario.targets
@@ -551,7 +576,7 @@ class OllamaTestSuiteGenerator(TestSuiteGenerator):
         for class_name, scenario_infos_list in scenario_infos_dict.items():
             logging.debug("Generating tests for target methods in class '%s'", class_name)
             for i, method_info in enumerate(scenario_infos_list):
-                messages_list = self.api.generate_messages_list(method_info, class_name, branch, output_path)
+                messages_list = self.generate_messages_list(method_info, class_name, branch, output_path)
                 test_template = method_info.get("test_template", "")
                 self._process_prompts(messages_list=messages_list, test_template=test_template, output_path=output_path,
                                       branch=branch, class_name=class_name, imports=imports_dict.get(class_name, []),
@@ -568,11 +593,13 @@ class OllamaTestSuiteGenerator(TestSuiteGenerator):
     def _process_single_prompt(self, messages: List[Dict[str, str]], test_template: str, output_path: str, branch: str,
                                class_name: str, imports: List[str], i: int, j: int, time_duration_path: str,
                                project_name: str, output_file_name: str, prompt_key: str) -> None:
+        api = self._get_api_instance()
+        total_duration = api.timeout_seconds * 1_000_000_000  # Initialize with timeout value in nanoseconds
         try:
             logging.debug("Processing output %d%d for prompt key '%s' in branch \"%s\"", i, j, prompt_key, branch)
-            output = self.api.generate_output(messages)
+            output = api.generate_output(messages)
             response = output.get("response", "Response not found.")
-            total_duration = int(output.get("total_duration", self.api.timeout_seconds))
+            total_duration = int(output.get("total_duration", api.timeout_seconds * 1_000_000_000))
             self.save_output(test_template, response, output_path, output_file_name)
         except Exception as e:
             logging.error("Error while processing output %d%d for prompt key '%s' in branch \"%s\": %s", i, j, prompt_key, branch, e)
