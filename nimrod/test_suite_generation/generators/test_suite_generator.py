@@ -69,7 +69,10 @@ class TestSuiteGenerator(ABC):
 
     def _update_compilation_results(self, test_suite_path: str, java_file: str, output: str) -> None:
         """Updates the compilation results file with the output of the compilation of a test suite class."""
-        COMPILATION_LOG_FILE = "compilation_results.json"
+        reports_dir = path.join(path.dirname(get_base_output_path()), "reports")
+        COMPILATION_LOG_FILE = path.join(reports_dir, "compilation_results.json")
+        
+        makedirs(reports_dir, exist_ok=True)
 
         if path.exists(COMPILATION_LOG_FILE):
             with open(COMPILATION_LOG_FILE, "r", encoding="utf-8") as f:

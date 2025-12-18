@@ -2,7 +2,7 @@ import logging
 import re
 import subprocess
 import json
-from os import path
+from os import path, makedirs
 from typing import Dict, List, Optional
 from nimrod.test_suite_generation.test_suite import TestSuite
 from nimrod.test_suites_execution.test_case_result import TestCaseResult
@@ -12,15 +12,17 @@ from nimrod.tools.java import TIMEOUT, Java
 from nimrod.tools.jacoco import Jacoco
 from nimrod.utils import generate_classpath
 
-EXECUTION_LOG_FILE = "execution_results.json"
+reports_dir = path.join(path.dirname(get_base_output_path()), "reports")
+makedirs(reports_dir, exist_ok=True)
+EXECUTION_LOG_FILE = path.join(reports_dir, "execution_results.json")
 
 def is_failed_caused_by_compilation_problem(test_case_name: str, failed_test_message: str) -> bool:
     my_regex = re.escape(test_case_name) + r"[0-9A-Za-z0-9_\(\.\)\n \:]+(NoSuchMethodError|NoSuchFieldError|NoSuchClassError|NoClassDefFoundError|NoSuchAttributeError|tried to access method)"
-    return re.search(my_regex, failed_test_message) != None
+    return re.search(my_regex, failed_test_message) is not None
 
 def is_failed_caused_by_error(test_case_name: str, failed_test_message: str) -> bool:
     my_regex = re.escape(test_case_name) + r"[0-9A-Za-z0-9_(.)]RegressionTest[0-9A-Za-z0-9_(.)\n]+Exception"
-    return re.search(my_regex, failed_test_message) != None
+    return re.search(my_regex, failed_test_message) is not None
 
 def get_result_for_test_case(failed_test: str, output: str) -> TestCaseResult:
     if is_failed_caused_by_compilation_problem(failed_test, output):
@@ -106,7 +108,8 @@ class TestSuiteExecutor:
             command = self._java.exec_java(test_suite.path, self._java.get_env(), TIMEOUT, *params)
             output = command.decode('unicode_escape')
 
-            if test_suite.generator_name == "OLLAMA":
+            # Special handling for LLM-generated test classes
+            if test_suite.generator_name not in ["RANDOOP", "EVOSUITE", "RANDOOP_MODIFIED", "EVOSUITE_DIFFERENTIAL", "PROJECT_TEST"]:
                 parts = test_class.replace(".java", "").split("_")
                 if len(parts) >= 2:
                     test_class_num = parts[-2] + parts[-1]
@@ -189,5 +192,5 @@ class TestSuiteExecutor:
                 ['org.junit.platform.console.ConsoleLauncher'] + test_targets
 
             return self._java.exec_java(test_suite.path, self._java.get_env(), TIMEOUT, *params)
-        except subprocess.CalledProcessError as error:
+        except subprocess.CalledProcessError:
             return None
