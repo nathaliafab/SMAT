@@ -1,0 +1,82 @@
+{
+  "prompt_templates": {
+    "zero_shot": {
+      "system_message": {
+        "role": "system",
+        "content": "You are a senior Java developer with expertise in JUnit testing.\nYour task is to provide JUnit tests for the given method in the class under test, considering the changes introduced in the left and right branches.\nYou have to answer with the test code only, inside code blocks (```).\nThe tests should start with @Test."
+      },
+      "user_init_message": {
+        "role": "user", 
+        "content": "Here is the context of the method under test in the class {class_name} on the {branch} branch:"
+      },
+      "context_templates": {
+        "changes_summary": {
+          "role": "user",
+          "content": "Left {left_changes_summary}.\nRight {right_changes_summary}"
+        },
+        "class_fields": {
+          "role": "user", 
+          "content": "Class fields:\n{class_fields}"
+        },
+        "constructors": {
+          "role": "user",
+          "content": "Constructors:\n{constructors}"
+        }
+      },
+      "method_context_message": {
+        "role": "user",
+        "content": "Target Method Under Test:\n{method_code}\n\nNow generate JUnit tests for the method under test, considering the given context. Remember to create meaningful assertions.\nWrite all tests inside code blocks (```), and start each test with @Test."
+      }
+    },
+    "one_shot": {
+      "system_message": {
+        "role": "system",
+        "content": "You are a senior Java developer with expertise in JUnit testing.Your only task is to generate JUnit test methods based on the provided Java class details, using Java syntax.Follow these guidelines:1. Provide only the JUnit test code, written in Java syntax, and nothing else.2. Fully implement the test methods, including the actual test logic (assertEquals, assertTrue, etc.), starting with @Test.3. Exclude any setup/teardown code or content outside the test method itself.4. You have to answer with the test code only, inside code blocks (```).5. Use comment blocks /* */ or // for extra text, such as comments, titles, explanations, or any additional details within the code.6. Ensure that the generated output is completely functional as code, compiles successfully, and runs without errors."
+      },
+      "user_init_message": {
+        "role": "user",
+        "content": "Below, you will find additional information regarding the Class Under Test:"
+      },
+      "example_context": {
+        "changes_summary": {
+          "role": "user",
+          "content": "Left wanted to extend the method cleanText() to also remove duplicated whitespace in the text by adding the method call normalizeWhitespace().\nRight wanted to clean the text by removing consecutive duplicated words."
+        },
+        "class_fields": {
+          "role": "user", 
+          "content": "Class fields:\npublic String text;\n"
+        },
+        "constructors": {
+          "role": "user",
+          "content": "Constructors:\npublic DFPBaseSample(String text) {\n  this.text = text;\n }\n"
+        }
+      },
+      "example_method_message": {
+        "role": "user",
+        "content": "Target Method Under Test:\npublic void cleanText() {\n  DFPBaseSample inst = new DFPBaseSample(text);\n  inst.normalizeWhiteSpace();\n  inst.removeComments();\n  this.text = inst.text;\n }\n\nTests for the method 'cleanText()' in the class 'DFPBaseSample':"
+      },
+      "example_response": {
+        "role": "assistant",
+        "content": "```@Test\npublic void test00() {\n    DFPBaseSample sample = new DFPBaseSample(\"This is a sample text\");\n    sample.cleanText();\n    assertEquals(\"This is a sample text\", sample.getText());\n}\n\n@Test\npublic void test01() {\n    DFPBaseSample sample1 = new DFPBaseSample(\"Hello  World\");\n    DFPBaseSample sample2 = sample1;\n    sample1.cleanText();\n    sample2.normalizeWhiteSpace();\n    sample2.removeComments();\n    assertEquals(sample1.getText(), sample2.getText());\n}```"
+      },
+      "context_templates": {
+        "changes_summary": {
+          "role": "user",
+          "content": "{left_changes_summary}\n{right_changes_summary}"
+        },
+        "class_fields": {
+          "role": "user",
+          "content": "Class fields:\n{class_fields}"
+        },
+        "constructors": {
+          "role": "user", 
+          "content": "Constructors:\n{constructors}"
+        }
+      },
+      "method_context_message": {
+        "role": "user",
+        "content": "Target Method Under Test:\n{method_code}\n\nTests for the method '{method_name}' in the class '{class_name}':"
+      }
+    }
+  }
+}
