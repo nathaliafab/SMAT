@@ -1,0 +1,1451 @@
+[
+  {
+    "projectName": "Storm",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.apache.storm.kafka.spout.KafkaSpoutConfig": [
+        {
+          "method": "toString()",
+          "leftChangesSummary": "Left removes the field and reference for maxRetries of the returning string from the method toString()",
+          "rightChangesSummary": "Right performs a refactoring involving the references for key and value variables. It updates how the variable values are accessed (now using get methods instead of directly accessing the values). Right also removes references to the field: kafkaSpoutStreams, tuplesBuilder, topics, and topicWildcardPattern. Finally, it adds reference for subscription and translator."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/storm/ad2be678831b3b060229fd936e3908110162b7ac/transformed/base/kafka-clients-0.10.0.0.jar:/path/mergedataset/storm/ad2be678831b3b060229fd936e3908110162b7ac/transformed/base/storm-core-2.0.0-jar-with-dependencies.jar:/path/mergedataset/storm/ad2be678831b3b060229fd936e3908110162b7ac/transformed/base/storm-kafka-client-2.0.0-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/storm/ad2be678831b3b060229fd936e3908110162b7ac/transformed/left/kafka-clients-0.10.0.0.jar:/path/mergedataset/storm/ad2be678831b3b060229fd936e3908110162b7ac/transformed/left/storm-core-2.0.0-jar-with-dependencies.jar:/path/mergedataset/storm/ad2be678831b3b060229fd936e3908110162b7ac/transformed/left/storm-kafka-client-2.0.0-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/storm/ad2be678831b3b060229fd936e3908110162b7ac/transformed/right/kafka-clients-0.10.0.0.jar:/path/mergedataset/storm/ad2be678831b3b060229fd936e3908110162b7ac/transformed/right/storm-core-2.0.0-jar-with-dependencies.jar:/path/mergedataset/storm/ad2be678831b3b060229fd936e3908110162b7ac/transformed/right/storm-kafka-client-2.0.0-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/storm/ad2be678831b3b060229fd936e3908110162b7ac/transformed/merge/kafka-clients-0.10.0.0.jar:/path/mergedataset/storm/ad2be678831b3b060229fd936e3908110162b7ac/transformed/merge/storm-core-2.0.0-jar-with-dependencies.jar:/path/mergedataset/storm/ad2be678831b3b060229fd936e3908110162b7ac/transformed/merge/storm-kafka-client-2.0.0-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "Storm",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.apache.storm.kafka.spout.KafkaSpout": [
+        {
+          "method": "emitTupleIfNotEmitted(ConsumerRecord<K,V>)",
+          "leftChangesSummary": "Left performs a refactoring extracting a variable of an IF statement.  it also changes another IF condition.",
+          "rightChangesSummary": "Right updates the method signature changing its return type for boolean and adds return statements."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/storm/bd1f5c54752f67b484a83c26667331234234d3a3/transformed/base/kafka-clients-2.4.1.jar:/path/mergedataset/storm/bd1f5c54752f67b484a83c26667331234234d3a3/transformed/base/storm-core-2.0.0-jar-with-dependencies.jar:/path/mergedataset/storm/bd1f5c54752f67b484a83c26667331234234d3a3/transformed/base/storm-kafka-client-2.0.0-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/storm/bd1f5c54752f67b484a83c26667331234234d3a3/transformed/left/kafka-clients-2.4.1.jar:/path/mergedataset/storm/bd1f5c54752f67b484a83c26667331234234d3a3/transformed/left/storm-core-2.0.0-jar-with-dependencies.jar:/path/mergedataset/storm/bd1f5c54752f67b484a83c26667331234234d3a3/transformed/left/storm-kafka-client-2.0.0-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/storm/bd1f5c54752f67b484a83c26667331234234d3a3/transformed/right/kafka-clients-2.4.1.jar:/path/mergedataset/storm/bd1f5c54752f67b484a83c26667331234234d3a3/transformed/right/storm-core-2.0.0-jar-with-dependencies.jar:/path/mergedataset/storm/bd1f5c54752f67b484a83c26667331234234d3a3/transformed/right/storm-kafka-client-2.0.0-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/storm/bd1f5c54752f67b484a83c26667331234234d3a3/transformed/merge/kafka-clients-2.4.1.jar:/path/mergedataset/storm/bd1f5c54752f67b484a83c26667331234234d3a3/transformed/merge/storm-core-2.0.0-jar-with-dependencies.jar:/path/mergedataset/storm/bd1f5c54752f67b484a83c26667331234234d3a3/transformed/merge/storm-kafka-client-2.0.0-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "antlr4",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.antlr.v4.codegen.target.Python2Target": [
+        {
+          "method": "python2Keywords",
+          "leftChangesSummary": "Left changes the list of values of an array of Strings during its initialization (adition of a new value)",
+          "rightChangesSummary": "Right changes the list of values of an array of Strings during its initialization (adition of a new value)"
+        }
+      ],
+      "org.antlr.v4.codegen.target.Python3Target": [
+        {
+          "method": "python3Keywords",
+          "leftChangesSummary": "Left changes the list of values of an array of Strings during its initialization (adition of a new value)",
+          "rightChangesSummary": "Right changes the list of values of an array of Strings during its initialization (adition of a new value)"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/base/antlr4-4.5.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/base/antlr4-master-4.5.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/base/antlr4-maven-plugin-4.5.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/base/antlr4-runtime-4.5.3-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/left/antlr4-4.5.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/left/antlr4-master-4.5.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/left/antlr4-maven-plugin-4.5.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/left/antlr4-runtime-4.5.3-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/right/antlr4-4.5.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/right/antlr4-master-4.5.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/right/antlr4-maven-plugin-4.5.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/right/antlr4-runtime-4.5.3-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/merge/antlr4-4.5.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/merge/antlr4-master-4.5.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/merge/antlr4-maven-plugin-4.5.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/antlr4/69ff2669eec265e25721dbc27cb00f6c381d0b41/transformed/merge/antlr4-runtime-4.5.3-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "cloud-slang",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "io.cloudslang.lang.api.SlangImpl": [
+        {
+          "method": "getAllEventTypes()",
+          "leftChangesSummary": "Left adds new values into a list",
+          "rightChangesSummary": "Right adds new values into a list"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/base/cloudslang-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/base/cloudslang-all-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/base/cloudslang-cli-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/base/cloudslang-compiler-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/base/cloudslang-content-verifier-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/base/cloudslang-entities-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/base/cloudslang-runtime-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/base/cloudslang-tests-0.7.50-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/left/cloudslang-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/left/cloudslang-all-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/left/cloudslang-cli-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/left/cloudslang-compiler-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/left/cloudslang-content-verifier-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/left/cloudslang-entities-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/left/cloudslang-runtime-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/left/cloudslang-tests-0.7.50-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/right/cloudslang-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/right/cloudslang-all-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/right/cloudslang-cli-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/right/cloudslang-compiler-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/right/cloudslang-content-verifier-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/right/cloudslang-entities-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/right/cloudslang-runtime-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/right/cloudslang-tests-0.7.50-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/merge/cloudslang-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/merge/cloudslang-all-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/merge/cloudslang-cli-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/merge/cloudslang-compiler-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/merge/cloudslang-content-verifier-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/merge/cloudslang-entities-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/merge/cloudslang-runtime-0.7.50-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/cloud-slang/20bac30d9bd76569aa6a4fa1e8261c1a9b5e6f76/transformed/merge/cloudslang-tests-0.7.50-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "fitnesse",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "fitnesse.testsystems.slim.tables.SlimTableFactory": [
+        {
+          "method": "SlimTableFactory()",
+          "leftChangesSummary": "Left adds two new elements into a map, by calling the add method addTableTye twice.",
+          "rightChangesSummary": "Right adds a new element into a map, also calling the method addTableType."
+        }
+      ],
+      "fitnesse.testsystems.slim.tables.SlimTableFactoryTest": [
+        {
+          "method": "setUp()",
+          "leftChangesSummary": "Left adds two entries on the field map.",
+          "rightChangesSummary": "Right adds one entry on the field map."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/fitnesse/4d9ba9d221d879507440feb084fa7521b95111ec/transformed/base/fitnesse-standalone.jar",
+      "left": "/path/mergedataset/fitnesse/4d9ba9d221d879507440feb084fa7521b95111ec/transformed/left/fitnesse-standalone.jar",
+      "right": "/path/mergedataset/fitnesse/4d9ba9d221d879507440feb084fa7521b95111ec/transformed/right/fitnesse-standalone.jar",
+      "merge": "/path/mergedataset/fitnesse/4d9ba9d221d879507440feb084fa7521b95111ec/transformed/merge/fitnesse-standalone.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "okhttp",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "com.squareup.okhttp.OkHttpClient": [
+        {
+          "method": "copyWithDefaults()",
+          "leftChangesSummary": "Left changed the object returned by the method using the current object of the class and ass a new value to the field transports.",
+          "rightChangesSummary": "Right changes the value assigned to result.hostnameverifier adding now an object OkHostnameVerifier."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/base/okhttp-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/base/okhttp-apache-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/base/parent-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/base/sample-parent-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/base/simple-client-1.0-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/left/guide-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/left/okhttp-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/left/okhttp-apache-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/left/parent-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/left/sample-parent-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/left/simple-client-1.0-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/right/okhttp-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/right/okhttp-apache-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/right/parent-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/right/sample-parent-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/right/simple-client-1.0-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/merge/guide-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/merge/okhttp-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/merge/okhttp-apache-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/merge/parent-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/merge/sample-parent-1.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/35166168529bd27281685e56a0a122eff44460e9/transformed/merge/simple-client-1.0-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "okhttp",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "com.squareup.okhttp.internal.bytes.GzipSource": [
+        {
+          "method": "consumeHeader(Deadline)",
+          "leftChangesSummary": "Left does a refactoring by renaming the method getByte on OkBuffer class.",
+          "rightChangesSummary": "Right does a refactoring by extracting the local method seek to OkBuffers class."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/base/benchmarks-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/base/guide-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/base/mockwebserver-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/base/okhttp-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/base/okhttp-apache-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/base/okhttp-protocols-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/base/parent-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/base/sample-parent-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/base/simple-client-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/base/static-server-2.0.0-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/left/benchmarks-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/left/guide-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/left/mockwebserver-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/left/okhttp-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/left/okhttp-apache-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/left/okhttp-protocols-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/left/parent-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/left/sample-parent-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/left/simple-client-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/left/static-server-2.0.0-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/right/benchmarks-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/right/guide-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/right/mockwebserver-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/right/okhttp-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/right/okhttp-apache-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/right/okhttp-protocols-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/right/parent-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/right/sample-parent-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/right/simple-client-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/right/static-server-2.0.0-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/merge/benchmarks-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/merge/guide-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/merge/mockwebserver-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/merge/okhttp-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/merge/okhttp-apache-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/merge/okhttp-protocols-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/merge/parent-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/merge/sample-parent-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/merge/simple-client-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/okhttp/1151c9853ccc3c9c3211c613b9b845b925f8c6a6/transformed/merge/static-server-2.0.0-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "jOOQ",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.jooq.impl.DSL": [
+        {
+          "method": "coalesce(T, T[])",
+          "leftChangesSummary": "added method declaration coalesce(T, T[])",
+          "rightChangesSummary": "also added method declaration coalesce(T, T[]), but with different body"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/base/jooq-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/base/jooq-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/base/jooq-codegen-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/base/jooq-codegen-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/base/jooq-codegen-maven-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/base/jooq-codegen-maven-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/base/jooq-meta-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/base/jooq-meta-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/base/jooq-parent-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/base/jooq-scala-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/base/jooq-scala-3.6.0-SNAPSHOT.jar",
+      "left": "/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/left/jooq-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/left/jooq-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/left/jooq-codegen-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/left/jooq-codegen-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/left/jooq-codegen-maven-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/left/jooq-codegen-maven-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/left/jooq-meta-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/left/jooq-meta-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/left/jooq-parent-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/left/jooq-scala-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/left/jooq-scala-3.6.0-SNAPSHOT.jar",
+      "right": "/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/right/jooq-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/right/jooq-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/right/jooq-codegen-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/right/jooq-codegen-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/right/jooq-codegen-maven-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/right/jooq-codegen-maven-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/right/jooq-meta-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/right/jooq-meta-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/right/jooq-parent-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/right/jooq-scala-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/right/jooq-scala-3.6.0-SNAPSHOT.jar",
+      "merge": "/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/merge/jooq-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/merge/jooq-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/merge/jooq-codegen-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/merge/jooq-codegen-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/merge/jooq-codegen-maven-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/merge/jooq-codegen-maven-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/merge/jooq-meta-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/merge/jooq-meta-3.6.0-SNAPSHOT.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/merge/jooq-parent-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/merge/jooq-scala-3.6.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/jOOQ/d96120f327107feb1ebb15e7c090dc38eeff72ca/transformed/merge/jooq-scala-3.6.0-SNAPSHOT.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "swagger-maven-plugin",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "com.github.kongchen.swagger.docgen.reader.AbstractReader": [
+        {
+          "method": "hasValidAnnotations(List<Annotation>)",
+          "leftChangesSummary": "Left adds items to the returned list used to define the return of method hasValidAnnotations",
+          "rightChangesSummary": "Right also adds items to the returned list used to define the return of method hasValidAnnotations"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/swagger-maven-plugin/e825a7fdc6ef688f1253b93d2cb236e710acfc56/transformed/base/swagger-maven-plugin-3.1.1-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-maven-plugin/e825a7fdc6ef688f1253b93d2cb236e710acfc56/transformed/base/swagger-maven-plugin-3.1.1-SNAPSHOT.jar",
+      "left": "/path/mergedataset/swagger-maven-plugin/e825a7fdc6ef688f1253b93d2cb236e710acfc56/transformed/left/swagger-maven-plugin-3.1.1-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-maven-plugin/e825a7fdc6ef688f1253b93d2cb236e710acfc56/transformed/left/swagger-maven-plugin-3.1.1-SNAPSHOT.jar",
+      "right": "/path/mergedataset/swagger-maven-plugin/e825a7fdc6ef688f1253b93d2cb236e710acfc56/transformed/right/swagger-maven-plugin-3.1.1-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-maven-plugin/e825a7fdc6ef688f1253b93d2cb236e710acfc56/transformed/right/swagger-maven-plugin-3.1.1-SNAPSHOT.jar",
+      "merge": "/path/mergedataset/swagger-maven-plugin/e825a7fdc6ef688f1253b93d2cb236e710acfc56/transformed/merge/swagger-maven-plugin-3.1.1-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-maven-plugin/e825a7fdc6ef688f1253b93d2cb236e710acfc56/transformed/merge/swagger-maven-plugin-3.1.1-SNAPSHOT.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "retrofit",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "retrofit.RequestBuilder": [
+        {
+          "method": "build()",
+          "leftChangesSummary": "Left changed the argument of a method call and chained it with another call. Semantically, it inserts \"?\" in the middle of a string stored in the url variable.",
+          "rightChangesSummary": "Right adds an if statement that surrounds an assignment (which comes from base) to the url variable."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/base/parent-1.0.2-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/base/retrofit-1.0.2-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/base/sample-github-client-1.0.2-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/base/samples-1.0.2-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/left/parent-1.0.2-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/left/retrofit-1.0.2-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/left/sample-github-client-1.0.2-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/left/samples-1.0.2-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/right/parent-1.0.2-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/right/retrofit-1.0.2-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/right/sample-github-client-1.0.2-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/right/samples-1.0.2-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/merge/parent-1.0.2-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/merge/retrofit-1.0.2-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/merge/sample-github-client-1.0.2-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/71f622ce51031b152a0be6ad5facfb27a654bf5a/transformed/merge/samples-1.0.2-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "retrofit",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "retrofit.RestAdapter": [
+        {
+          "method": "logAndReplaceResponse(String, Response, long)",
+          "leftChangesSummary": "Left does a refactoring.",
+          "rightChangesSummary": "Right creates a new method toString() and uses it to write on log."
+        },
+        {
+          "method": "logAndReplaceRequest(Request)",
+          "leftChangesSummary": "Deleted a loop with many calls to log and changed to one with arguments different from the previous call, which simply writes to the log output.",
+          "rightChangesSummary": "Change the log parameter, adding a toString() on header attribute (header.toString())."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/base/converter-jackson-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/base/converter-protobuf-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/base/converter-wire-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/base/github-client-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/base/parent-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/base/retrofit-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/base/retrofit-converters-1.2.3-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/left/converter-jackson-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/left/converter-protobuf-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/left/converter-wire-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/left/github-client-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/left/parent-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/left/retrofit-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/left/retrofit-converters-1.2.3-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/right/converter-jackson-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/right/converter-protobuf-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/right/converter-wire-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/right/github-client-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/right/parent-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/right/retrofit-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/right/retrofit-converters-1.2.3-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/merge/converter-jackson-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/merge/converter-protobuf-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/merge/converter-wire-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/merge/github-client-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/merge/parent-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/merge/retrofit-1.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/retrofit/2b6c719c6645f8e48dca6d0047c752069d321bc4/transformed/merge/retrofit-converters-1.2.3-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "jsoup",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.jsoup.helper.HttpConnection": [
+        {
+          "method": "execute(Connection.Request, Response)",
+          "leftChangesSummary": "Left adds a new condition (OR) that is reponsible for changing the value of the local variable needsRedirect.",
+          "rightChangesSummary": "Right updates another if statement conditions; it changes a set of conditions grouped with AND, to the OR operator. This if is responsible for throw a new exception."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/jsoup/a8b6982de98ff76ef254031d7152fff57f6bf941/transformed/base/jsoup-1.8.4-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/jsoup/a8b6982de98ff76ef254031d7152fff57f6bf941/transformed/left/jsoup-1.8.4-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/jsoup/a8b6982de98ff76ef254031d7152fff57f6bf941/transformed/right/jsoup-1.8.4-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/jsoup/a8b6982de98ff76ef254031d7152fff57f6bf941/transformed/merge/jsoup-1.8.4-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "jsoup",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.jsoup.helper.HttpConnection": [
+        {
+          "method": "execute(Connection.Request, Response)",
+          "leftChangesSummary": "Left adds a new condition (OR) that is reponsible for changing the value of the local variable needsRedirect.",
+          "rightChangesSummary": "Right updates another if statement conditions; it changes a set of conditions grouped with AND, to the OR operator. This if is responsible for throw a new exception."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/jsoup/3f7d2c71dbbbb289c684f339874eed8ac2747fa0/transformed/base/jsoup-1.7.4-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/jsoup/3f7d2c71dbbbb289c684f339874eed8ac2747fa0/transformed/left/jsoup-1.7.4-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/jsoup/3f7d2c71dbbbb289c684f339874eed8ac2747fa0/transformed/right/jsoup-1.7.4-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/jsoup/3f7d2c71dbbbb289c684f339874eed8ac2747fa0/transformed/merge/jsoup-1.7.4-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "jsoup",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.jsoup.nodes.TextNode": [
+        {
+          "method": "outerHtmlHead(StringBuilder, int, Document.OutputSettings)",
+          "leftChangesSummary": "Left changes the condition of an if statement, which calls the method preserveWhitespace. Now the method only performs its verifications if the node is not null and is an instance of Element type; otherwise, no action is performed and the value of local variable html is not updated.",
+          "rightChangesSummary": "Right adds a new condition (OR) in an if statement, which may change the value of the parameter accum."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/jsoup/a44e18aa3c1fcd25a68a5965f9490d8f7d026509/transformed/base/jsoup-1.7.2-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/jsoup/a44e18aa3c1fcd25a68a5965f9490d8f7d026509/transformed/left/jsoup-1.7.2-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/jsoup/a44e18aa3c1fcd25a68a5965f9490d8f7d026509/transformed/right/jsoup-1.7.2-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/jsoup/a44e18aa3c1fcd25a68a5965f9490d8f7d026509/transformed/merge/jsoup-1.7.2-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "jsoup",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.jsoup.helper.HttpConnection": [
+        {
+          "method": "createConnection(Connection.Request)",
+          "leftChangesSummary": "Left adds a IF statement, allowing extra set fields of the object returned by the method",
+          "rightChangesSummary": "Rights changes a IF condition, setting more fields of the object returned by the method and accepting more values than before"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/jsoup/fee4762322f85a1109edd75ccb67f38cf5008c80/transformed/base/jsoup-1.8.2-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/jsoup/fee4762322f85a1109edd75ccb67f38cf5008c80/transformed/left/jsoup-1.8.2-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/jsoup/fee4762322f85a1109edd75ccb67f38cf5008c80/transformed/right/jsoup-1.8.2-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/jsoup/fee4762322f85a1109edd75ccb67f38cf5008c80/transformed/merge/jsoup-1.8.2-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "SimianArmy",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "com.netflix.simianarmy.basic.janitor.BasicJanitorMonkeyContext": [
+        {
+          "method": "getInstanceJanitor()",
+          "leftChangesSummary": "Left updates the rule added in ruleEngine by method addRule().",
+          "rightChangesSummary": "Right adds a new if statement, which may also add a new rule in ruleEngine."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/base/gradle-wrapper.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/base/simianarmy-2.5.0-SNAPSHOT-javadoc.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/base/simianarmy-2.5.0-SNAPSHOT-sources.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/base/simianarmy-2.5.0-SNAPSHOT.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/base/simianarmy-all-2.5.0-SNAPSHOT.jar",
+      "left": "/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/left/gradle-wrapper.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/left/simianarmy-2.5.0-SNAPSHOT-javadoc.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/left/simianarmy-2.5.0-SNAPSHOT-sources.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/left/simianarmy-2.5.0-SNAPSHOT.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/left/simianarmy-all-2.5.0-SNAPSHOT.jar",
+      "right": "/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/right/gradle-wrapper.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/right/simianarmy-2.5.0-SNAPSHOT-javadoc.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/right/simianarmy-2.5.0-SNAPSHOT-sources.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/right/simianarmy-2.5.0-SNAPSHOT.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/right/simianarmy-all-2.5.0-SNAPSHOT.jar",
+      "merge": "/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/merge/gradle-wrapper.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/merge/simianarmy-2.5.0-SNAPSHOT-javadoc.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/merge/simianarmy-2.5.0-SNAPSHOT-sources.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/merge/simianarmy-2.5.0-SNAPSHOT.jar:/path/mergedataset/SimianArmy/345ad9513aafff397050d613fa87ad06ddffe99d/transformed/merge/simianarmy-all-2.5.0-SNAPSHOT.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "titan",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "com.thinkaurelius.titan.graphdb.database.serialize.SerializerInitialization": [
+        {
+          "method": "initialize(Serializer)",
+          "leftChangesSummary": "Left adds and removes calls for method registerClass of serialize object, that registers new classes in the registrations hashmap.",
+          "rightChangesSummary": "Right changes one call for method registerClass by adding a new parameter (instead of only two), and this new parameter will be added into headers hashmap."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/titan/387c16ea05ef9fa312f37139228d2bbf61455ff4/transformed/base/titan-core-0.4.1-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/titan/387c16ea05ef9fa312f37139228d2bbf61455ff4/transformed/left/titan-core-0.4.1-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/titan/387c16ea05ef9fa312f37139228d2bbf61455ff4/transformed/right/titan-core-0.4.1-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/titan/387c16ea05ef9fa312f37139228d2bbf61455ff4/transformed/merge/titan-core-0.4.1-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "Activiti",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.activiti.engine.impl.persistence.entity.DeploymentEntityManager": [
+        {
+          "method": "deleteDeployment(String, boolean)",
+          "leftChangesSummary": "Left changes a if condition, that is reponsible for changing the value of the local variable nrOfProcessDefinitionsWithSameKey (incrementation)",
+          "rightChangesSummary": "Right adds a new IF statement; in case the condition is TRUE, it calls new mtethod using the objects of the local list timerStartJobs."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/base/activiti-bpmn-converter-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/base/activiti-bpmn-model-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/base/activiti-engine-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/base/activiti-image-generator-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/base/activiti-process-validation-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/base/activiti-root-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/base/jslint4java-1.3.3.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/base/org.activiti.designer.integration-0.6.0.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/base/yuicompressor-2.4.2.jar",
+      "left": "/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/left/activiti-bpmn-converter-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/left/activiti-bpmn-model-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/left/activiti-engine-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/left/activiti-image-generator-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/left/activiti-process-validation-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/left/activiti-root-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/left/jslint4java-1.3.3.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/left/org.activiti.designer.integration-0.6.0.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/left/yuicompressor-2.4.2.jar",
+      "right": "/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/right/activiti-bpmn-converter-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/right/activiti-bpmn-model-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/right/activiti-engine-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/right/activiti-image-generator-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/right/activiti-process-validation-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/right/activiti-root-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/right/jslint4java-1.3.3.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/right/org.activiti.designer.integration-0.6.0.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/right/yuicompressor-2.4.2.jar",
+      "merge": "/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/merge/activiti-bpmn-converter-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/merge/activiti-bpmn-model-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/merge/activiti-engine-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/merge/activiti-image-generator-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/merge/activiti-process-validation-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/merge/activiti-root-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/merge/jslint4java-1.3.3.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/merge/org.activiti.designer.integration-0.6.0.jar:/path/mergedataset/activiti/50d8e43eb5917c63abfbcdec1e68e510943f325a/transformed/merge/yuicompressor-2.4.2.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "Activiti",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.activiti.engine.impl.bpmn.behavior.UserTaskActivityBehavior": [
+        {
+          "method": "execute(ActivityExecution)",
+          "leftChangesSummary": "Left adds a new IF statement, which may set the field formKey of the local variable formKey, or throws an exception.",
+          "rightChangesSummary": "Right adds a new IF statement, which may call static external methods without using their returns."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/base/activiti-bpmn-converter-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/base/activiti-bpmn-model-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/base/activiti-engine-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/base/activiti-process-validation-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/base/activiti-root-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/base/jslint4java-1.3.3.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/base/org.activiti.designer.integration-0.6.0.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/base/yuicompressor-2.4.2.jar",
+      "left": "/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/left/activiti-bpmn-converter-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/left/activiti-bpmn-model-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/left/activiti-engine-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/left/activiti-process-validation-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/left/activiti-root-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/left/jslint4java-1.3.3.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/left/org.activiti.designer.integration-0.6.0.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/left/yuicompressor-2.4.2.jar",
+      "right": "/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/right/activiti-bpmn-converter-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/right/activiti-bpmn-model-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/right/activiti-engine-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/right/activiti-process-validation-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/right/activiti-root-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/right/jslint4java-1.3.3.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/right/org.activiti.designer.integration-0.6.0.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/right/yuicompressor-2.4.2.jar",
+      "merge": "/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/merge/activiti-bpmn-converter-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/merge/activiti-bpmn-model-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/merge/activiti-engine-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/merge/activiti-process-validation-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/merge/activiti-root-5.16-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/merge/jslint4java-1.3.3.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/merge/org.activiti.designer.integration-0.6.0.jar:/path/mergedataset/activiti/bf46684ba62f5883673ea8fb0a14aecfe0aedea2/transformed/merge/yuicompressor-2.4.2.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "druid",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "com.metamx.druid.loading.S3SegmentPusher": [
+        {
+          "method": "push(File, DataSegment)",
+          "leftChangesSummary": "Left changes the object that will be returned by setting the object field binaryVersion.",
+          "rightChangesSummary": "Right set the field acl on object toPush, which is used by the returned object."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/base/druid-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/base/druid-client-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/base/druid-common-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/base/druid-examples-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/base/druid-examples-rand-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/base/druid-examples-twitter-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/base/druid-index-common-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/base/druid-indexer-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/base/druid-merger-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/base/druid-realtime-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/base/druid-server-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/base/druid-services-0.2.3-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/left/druid-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/left/druid-client-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/left/druid-common-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/left/druid-examples-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/left/druid-examples-rand-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/left/druid-examples-twitter-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/left/druid-index-common-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/left/druid-indexer-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/left/druid-merger-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/left/druid-realtime-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/left/druid-server-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/left/druid-services-0.2.8-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/right/druid-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/right/druid-client-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/right/druid-common-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/right/druid-examples-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/right/druid-examples-rand-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/right/druid-examples-twitter-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/right/druid-index-common-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/right/druid-indexer-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/right/druid-merger-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/right/druid-realtime-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/right/druid-server-0.2.3-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/right/druid-services-0.2.3-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/merge/druid-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/merge/druid-client-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/merge/druid-common-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/merge/druid-examples-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/merge/druid-examples-rand-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/merge/druid-examples-twitter-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/merge/druid-index-common-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/merge/druid-indexer-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/merge/druid-merger-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/merge/druid-realtime-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/merge/druid-server-0.2.8-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/druid/05168808c278c080c59c19e858d9471b316cd1f5/transformed/merge/druid-services-0.2.8-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "netty",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder": [
+        {
+          "method": "decode(ChannelHandlerContext, Channel, ChannelBuffer)",
+          "leftChangesSummary": "Left updates how variable frameLength is incremented, which is done only if the new conditional in the if statement is true.",
+          "rightChangesSummary": "Right updates method call failIfNecessary adding a new parameter (boolean value). [But these changes were also done by Left.]"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/netty/193acdb36cd3da9bfc62dd69c4208dff3f0a2b1b/transformed/base/netty-4.0.0.Alpha1-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/netty/193acdb36cd3da9bfc62dd69c4208dff3f0a2b1b/transformed/left/netty-4.0.0.Alpha1-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/netty/193acdb36cd3da9bfc62dd69c4208dff3f0a2b1b/transformed/right/netty-4.0.0.Alpha1-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/netty/193acdb36cd3da9bfc62dd69c4208dff3f0a2b1b/transformed/merge/netty-4.0.0.Alpha1-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "OpenTripPlanner",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.opentripplanner.routing.spt.MultiShortestPathTree": [
+        {
+          "method": "dominates(State, State)",
+          "leftChangesSummary": "Left renames some local variables and updates three boolean local variables used to define the method return.",
+          "rightChangesSummary": "Right adds a new if statement, which may return false."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/OpenTripPlanner/4c506dce43775704919d084f0acfba86d251bf4a/transformed/base/otp-1.0.0-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/OpenTripPlanner/4c506dce43775704919d084f0acfba86d251bf4a/transformed/left/otp-1.0.0-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/OpenTripPlanner/4c506dce43775704919d084f0acfba86d251bf4a/transformed/right/otp-1.0.0-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/OpenTripPlanner/4c506dce43775704919d084f0acfba86d251bf4a/transformed/merge/otp-1.0.0-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "webbit",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.webbitserver.netty.WebSocketClient": [
+        {
+          "method": "adjustPipelineToWebSocket(ChannelHandlerContext, MessageEvent, ChannelHandler, ChannelHandler)",
+          "leftChangesSummary": "Left sets the version of webSockectConnection object calling the method setHybiWebSocketVersion.",
+          "rightChangesSummary": "Right changes the order of parameters used to create the local variable webSocketChannelHandler"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/webbit/74d2d2b87704d003acacb34e4ca8fb5f897b938f/transformed/base/webbit-0.3.7-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/webbit/74d2d2b87704d003acacb34e4ca8fb5f897b938f/transformed/left/webbit-0.3.7-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/webbit/74d2d2b87704d003acacb34e4ca8fb5f897b938f/transformed/right/webbit-0.3.7-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/webbit/74d2d2b87704d003acacb34e4ca8fb5f897b938f/transformed/merge/webbit-0.3.7-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "spring-boot",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory": [
+        {
+          "method": "customizeConnector(org.apache.catalina.connector.Connector)",
+          "leftChangesSummary": "Added an if condition that has an asset in its body. One method call to configureSsl and two set method calls to connector",
+          "rightChangesSummary": "Added a wildcard to the generic of the AbstractProtocol class which is used as a casting"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/spring-boot/2d4e68a9777601bfb8309c94d8b74bc21be80ad1/original/base/spring-boot-1.1.6.BUILD-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/spring-boot/2d4e68a9777601bfb8309c94d8b74bc21be80ad1/original/left/spring-boot-1.2.0.BUILD-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/spring-boot/2d4e68a9777601bfb8309c94d8b74bc21be80ad1/original/right/spring-boot-1.1.6.BUILD-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/spring-boot/2d4e68a9777601bfb8309c94d8b74bc21be80ad1/original/merge/spring-boot-1.2.0.BUILD-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "original"
+  },
+  {
+    "projectName": "spring-boot",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.springframework.boot.autoconfigure.mongo.MongoProperties": [
+        {
+          "method": "builder(com.mongodb.MongoClientOptions)",
+          "leftChangesSummary": "Left changes one attribute of an object using a set method",
+          "rightChangesSummary": "Right changes nine attributes of an object using a set method"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/spring-boot/958a0a45f164601d01cb706c19f22ed3e25eff56/original/base/buildFinal.jar",
+      "left": "/path/mergedataset/spring-boot/958a0a45f164601d01cb706c19f22ed3e25eff56/original/left/buildFinal.jar",
+      "right": "/path/mergedataset/spring-boot/958a0a45f164601d01cb706c19f22ed3e25eff56/original/right/buildFinal.jar",
+      "merge": "/path/mergedataset/spring-boot/958a0a45f164601d01cb706c19f22ed3e25eff56/original/merge/buildFinal.jar"
+    },
+    "jarType": "original"
+  },
+  {
+    "projectName": "spring-boot",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.springframework.boot.context.web.SpringBootServletInitializer": [
+        {
+          "method": "createRootApplicationContext(javax.servlet.ServletContext)",
+          "leftChangesSummary": "Modified a class's instance declaration, instead of using new Class(), called a method that does this.",
+          "rightChangesSummary": "Inserted a conditional (if) for an attribute that has not been changed from the left, checking if an attribute of the class is true or false."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/spring-boot/3444ebbc05b99a164474c14d6a6784f749514428/original/base/spring-boot-1.2.6.BUILD-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/spring-boot/3444ebbc05b99a164474c14d6a6784f749514428/original/left/spring-boot-1.3.0.BUILD-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/spring-boot/3444ebbc05b99a164474c14d6a6784f749514428/original/right/spring-boot-1.2.6.BUILD-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/spring-boot/3444ebbc05b99a164474c14d6a6784f749514428/original/merge/spring-boot-1.3.0.BUILD-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "original"
+  },
+  {
+    "projectName": "spring-boot",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.springframework.boot.jta.atomikos.AtomikosProperties": [
+        {
+          "method": "asProperties()",
+          "leftChangesSummary": "Left adds calls for method set, which adds values on the object properties.",
+          "rightChangesSummary": "Right removes calls for method set, which added values on the object properties."
+        }
+      ],
+      "org.springframework.boot.jta.atomikos.AtomikosPropertiesTests": [
+        {
+          "method": "testProperties()",
+          "leftChangesSummary": "Left sets five new properties of the object properties (field), and consequently updates the expected value of first assertion.",
+          "rightChangesSummary": "Right removes five properties of the object properties (field), and consequently updates the expected value of first assertion."
+        },
+        {
+          "method": "testDefaultProperties()",
+          "leftChangesSummary": "Added some attributes for a test, changing the quantity of the parameters and the key.length() attribute.",
+          "rightChangesSummary": "Removed some attributes for a test, changing the quantity of the parameters and the key.length() attribute."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/spring-boot/6664ce19d6f2388ebd6cf54763f54fdddd226b9a/original/base/spring-boot-1.5.4.BUILD-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/spring-boot/6664ce19d6f2388ebd6cf54763f54fdddd226b9a/original/left/spring-boot-2.0.0.BUILD-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/spring-boot/6664ce19d6f2388ebd6cf54763f54fdddd226b9a/original/right/spring-boot-1.5.4.BUILD-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/spring-boot/6664ce19d6f2388ebd6cf54763f54fdddd226b9a/original/merge/spring-boot-2.0.0.BUILD-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "original"
+  },
+  {
+    "projectName": "spring-boot",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.springframework.boot.loader.archive.ExplodedArchive": [
+        {
+          "method": "getUrl()",
+          "leftChangesSummary": "Left removes one parameter (handler) for the new URL object, that is returned by the method.",
+          "rightChangesSummary": "Right updates one parameter used to create the URL object that is returned by the method, by calling toURL()"
+        }
+      ],
+      "org.springframework.boot.loader.archive.ExplodedArchiveTests": [
+        {
+          "method": "getUrl()",
+          "leftChangesSummary": "Equals to the base class",
+          "rightChangesSummary": "Changed a test assert"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/spring-boot/af20dc6cc45c032573413c401f9f73aa75371744/transformed/base/spring-boot-loader-1.3.6.BUILD-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/spring-boot/af20dc6cc45c032573413c401f9f73aa75371744/transformed/left/spring-boot-loader-1.4.0.BUILD-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/spring-boot/af20dc6cc45c032573413c401f9f73aa75371744/transformed/right/spring-boot-loader-1.3.6.BUILD-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/spring-boot/af20dc6cc45c032573413c401f9f73aa75371744/transformed/merge/spring-boot-loader-1.4.0.BUILD-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "spring-boot",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.springframework.boot.context.embedded.undertow.UndertowEmbeddedServletContainerFactory": [
+        {
+          "method": "createDeploymentManager(ServletContextInitializer)",
+          "leftChangesSummary": "Left sets one attribute of object deployment, which is used to create the returned method object manager.",
+          "rightChangesSummary": "Right modifies the way the returned manager object is created; before, it was done by calling the method defaultContainer from Servlets, and now it’s done by calling the method newContainer."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/transformed/base/spring-boot-1.3.1.RELEASE-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/transformed/left/spring-boot-1.3.1.BUILD-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/transformed/right/spring-boot-1.3.1.RELEASE-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/spring-boot/ea8107b6a53fa60b5f23b33e1b6d2e88bb60133c/transformed/merge/spring-boot-1.3.1.BUILD-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "spring-boot",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.springframework.boot.autoconfigure.logging.AutoConfigurationReportLoggingInitializer": [
+        {
+          "method": "logAutoConfigurationReport(boolean)",
+          "leftChangesSummary": "Change the string sent as a parameter to the logger.debug method",
+          "rightChangesSummary": "Change the string sent as a parameter to the logger.info method"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/spring-boot/fdd3f12ee0f92ac18844c08bf71df39feebb6673/original/base/buildFinal.jar",
+      "left": "/path/mergedataset/spring-boot/fdd3f12ee0f92ac18844c08bf71df39feebb6673/original/left/buildFinal.jar",
+      "right": "/path/mergedataset/spring-boot/fdd3f12ee0f92ac18844c08bf71df39feebb6673/original/right/buildFinal.jar",
+      "merge": "/path/mergedataset/spring-boot/fdd3f12ee0f92ac18844c08bf71df39feebb6673/original/merge/buildFinal.jar"
+    },
+    "jarType": "original"
+  },
+  {
+    "projectName": "eureka",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "com.netflix.appinfo.ApplicationInfoManager": [
+        {
+          "method": "ApplicationInfoManager()",
+          "leftChangesSummary": "Left adds a new attribute, and also its initialization in the constructor.",
+          "rightChangesSummary": "Right changes the contructor access modifier to public."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/eureka/6b09030e95e118a784ca7ec616398a4f0e384bcd/transformed/base/eureka-client-all-1.1.155-SNAPSHOT.jar",
+      "left": "/path/mergedataset/eureka/6b09030e95e118a784ca7ec616398a4f0e384bcd/transformed/left/eureka-client-all-1.1.157-SNAPSHOT.jar",
+      "right": "/path/mergedataset/eureka/6b09030e95e118a784ca7ec616398a4f0e384bcd/transformed/right/eureka-client-all-1.1.155-SNAPSHOT.jar",
+      "merge": "/path/mergedataset/eureka/6b09030e95e118a784ca7ec616398a4f0e384bcd/transformed/merge/eureka-client-all-1.1.157-SNAPSHOT.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "atmosphere",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.atmosphere.cpr.AtmosphereConfig": [
+        {
+          "method": "AtmosphereConfig()",
+          "leftChangesSummary": "Left changes the contructor access modifier to protected.",
+          "rightChangesSummary": "Right adds a new attribute, and also its initialization in the constructor."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/atmosphere/ffc0c6e274094c6423e29d1c45bab1593b8fac7d/transformed/base/atmosphere-runtime-2.3.0-SNAPSHOT-fat-tests.jar",
+      "left": "/path/mergedataset/atmosphere/ffc0c6e274094c6423e29d1c45bab1593b8fac7d/transformed/left/atmosphere-runtime-2.3.0-SNAPSHOT-fat-tests.jar",
+      "right": "/path/mergedataset/atmosphere/ffc0c6e274094c6423e29d1c45bab1593b8fac7d/transformed/right/atmosphere-runtime-2.3.0-SNAPSHOT-fat-tests.jar",
+      "merge": "/path/mergedataset/atmosphere/ffc0c6e274094c6423e29d1c45bab1593b8fac7d/transformed/merge/atmosphere-runtime-2.3.0-SNAPSHOT-fat-tests.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "resty-gwt",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.fusesource.restygwt.rebind.DirectRestServiceInterfaceClassCreator": [
+        {
+          "method": "getMethodCallback(JMethod)",
+          "leftChangesSummary": "changed if statement (condition, and block) on method getMethodCallback(JMethod)",
+          "rightChangesSummary": "extracted variable refactoring and added if statement on method getMethodCallback(JMethod)"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/resty-gwt/867b917c43c32acbdcac55767e7f04334006c866/transformed/base/restygwt-2.0.4-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/resty-gwt/867b917c43c32acbdcac55767e7f04334006c866/transformed/base/restygwt-2.0.4-SNAPSHOT.jar:/path/mergedataset/resty-gwt/867b917c43c32acbdcac55767e7f04334006c866/transformed/base/restygwt-project-2.0.4-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/resty-gwt/867b917c43c32acbdcac55767e7f04334006c866/transformed/left/restygwt-2.2.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/resty-gwt/867b917c43c32acbdcac55767e7f04334006c866/transformed/left/restygwt-2.2.0-SNAPSHOT.jar:/path/mergedataset/resty-gwt/867b917c43c32acbdcac55767e7f04334006c866/transformed/left/restygwt-project-2.2.0-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/resty-gwt/867b917c43c32acbdcac55767e7f04334006c866/transformed/right/restygwt-2.0.4-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/resty-gwt/867b917c43c32acbdcac55767e7f04334006c866/transformed/right/restygwt-2.0.4-SNAPSHOT.jar:/path/mergedataset/resty-gwt/867b917c43c32acbdcac55767e7f04334006c866/transformed/right/restygwt-project-2.0.4-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/resty-gwt/867b917c43c32acbdcac55767e7f04334006c866/transformed/merge/restygwt-2.2.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/resty-gwt/867b917c43c32acbdcac55767e7f04334006c866/transformed/merge/restygwt-2.2.0-SNAPSHOT.jar:/path/mergedataset/resty-gwt/867b917c43c32acbdcac55767e7f04334006c866/transformed/merge/restygwt-project-2.2.0-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "HikariCP",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "com.zaxxer.hikari.HikariConfig": [
+        {
+          "method": "validate()",
+          "leftChangesSummary": "Left adds a new IF statement, which may write in logger calling method info",
+          "rightChangesSummary": "Right removes source code, which would write in logger calling method error or wanr, or even trhows an exception. Changes on formating"
+        }
+      ],
+      "com.zaxxer.hikari.HikariPool": [
+        {
+          "method": "addConnection()",
+          "leftChangesSummary": "Left: changes if condition that decrement totalGetCOnnection",
+          "rightChangesSummary": "Right: adds a new call to addConnection from addConnections"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/HikariCP/1bca94af9ec625f21d1b58ff10efb5be71ab87a6/transformed/base/HikariCP-1.3.4-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/HikariCP/1bca94af9ec625f21d1b58ff10efb5be71ab87a6/transformed/left/HikariCP-1.3.4-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/HikariCP/1bca94af9ec625f21d1b58ff10efb5be71ab87a6/transformed/right/HikariCP-1.3.4-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/HikariCP/1bca94af9ec625f21d1b58ff10efb5be71ab87a6/transformed/merge/HikariCP-1.3.4-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "quickml",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "quickdt.experiments.OutOfTimeCrossValidatorRunner": [
+        {
+          "method": "getRandomForestBuilder(int, int)",
+          "leftChangesSummary": "Left deletes a method call, which set the field maxDepth.",
+          "rightChangesSummary": "Right renames a local variable RandomForestBuilder, and replaces the method return for that local variable. This variable has a different type related to the method return type on Base commit, but the interface is still the superclass."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/quickml/bae968d9a85c0501ba8842a6f88e7fc2c6b78693/transformed/base/quickdt-0.1.8-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/quickml/bae968d9a85c0501ba8842a6f88e7fc2c6b78693/transformed/left/quickdt-0.1.8-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/quickml/bae968d9a85c0501ba8842a6f88e7fc2c6b78693/transformed/right/quickdt-0.1.8.7-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/quickml/bae968d9a85c0501ba8842a6f88e7fc2c6b78693/transformed/merge/quickdt-0.1.8.7-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "pushy",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "com.relayrides.pushy.apns.PushManager": [
+        {
+          "method": "handleConnectionClosure(ApnsConnection<T>)",
+          "leftChangesSummary": "Left replaces “new Thread” with “listenerExecutor”",
+          "rightChangesSummary": "Right does a refactoring by “extracting\" two local methods."
+        },
+        {
+          "method": "handleConnectionFailure(com.relayrides.pushy.apns.ApnsConnection<T>| java.lang.Throwable)",
+          "leftChangesSummary": "Left changes the way a new thread is created.",
+          "rightChangesSummary": "Right does a structural refactoring by extracting two methods."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/pushy/58901c846e4f0874977c5aabbc34bcb4de3670e0/transformed/base/pushy-0.3-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/pushy/58901c846e4f0874977c5aabbc34bcb4de3670e0/transformed/left/pushy-0.3-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/pushy/58901c846e4f0874977c5aabbc34bcb4de3670e0/transformed/right/pushy-0.3-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/pushy/58901c846e4f0874977c5aabbc34bcb4de3670e0/transformed/merge/pushy-0.3-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "java-faker",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "com.github.javafaker.Faker": [
+        {
+          "method": "Faker(Locale, Random)",
+          "leftChangesSummary": "Left adds an initialization of two fields on constructor.",
+          "rightChangesSummary": "Right changes the initialization of a different field."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/java-faker/ca42fcfaf45cae1754c58e02e1d5d2a58ec03561/transformed/base/javafaker-0.9-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/java-faker/ca42fcfaf45cae1754c58e02e1d5d2a58ec03561/transformed/left/javafaker-0.9-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/java-faker/ca42fcfaf45cae1754c58e02e1d5d2a58ec03561/transformed/right/javafaker-0.9-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/java-faker/ca42fcfaf45cae1754c58e02e1d5d2a58ec03561/transformed/merge/javafaker-0.9-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "swagger-core",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "io.swagger.jaxrs2.OperationParser": [
+        {
+          "method": "getSchemaFromAnnotation(io.swagger.oas.annotations.media.Schema)",
+          "leftChangesSummary": "Left adds two IF statements, which may set some fields on object schemaObject.",
+          "rightChangesSummary": "Right renames three methods _enum() to allowableValues(), and _default() to defaultValue"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/base/swagger-annotations-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/base/swagger-core-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/base/swagger-integration-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/base/swagger-jaxrs2-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/base/swagger-models-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/base/swagger-project-2.0.0-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/left/swagger-annotations-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/left/swagger-core-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/left/swagger-integration-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/left/swagger-jaxrs2-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/left/swagger-models-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/left/swagger-project-2.0.0-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/right/swagger-annotations-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/right/swagger-core-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/right/swagger-integration-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/right/swagger-jaxrs2-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/right/swagger-models-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/right/swagger-project-2.0.0-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/merge/swagger-annotations-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/merge/swagger-core-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/merge/swagger-integration-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/merge/swagger-jaxrs2-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/merge/swagger-models-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/swagger-core/e7fea7c4889dbdd6a4e0b2d059c8aa0f126ab1c2/transformed/merge/swagger-project-2.0.0-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "cucumber-jvm",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "cuke4duke.internal.java.JavaLanguage": [
+        {
+          "method": "load(String)",
+          "leftChangesSummary": "Left adds a new IF statement, which may restrict the new addition of the local variable clazz on the field objectFactory.",
+          "rightChangesSummary": "Right changes generics allowing any type for the local variable clazz."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/cucumber-jvm/4505c156b6267c1b760deec570ddbfe047b42aa9/transformed/base/cuke4duke-0.1.2-jar-with-dependencies.jar:/path/mergedataset/cucumber-jvm/4505c156b6267c1b760deec570ddbfe047b42aa9/transformed/base/cuke4duke-maven-plugin-0.1.2-jar-with-dependencies.jar:/path/mergedataset/cucumber-jvm/4505c156b6267c1b760deec570ddbfe047b42aa9/transformed/base/parent-0.1.2-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/cucumber-jvm/4505c156b6267c1b760deec570ddbfe047b42aa9/transformed/left/cuke4duke-0.1.2-jar-with-dependencies.jar:/path/mergedataset/cucumber-jvm/4505c156b6267c1b760deec570ddbfe047b42aa9/transformed/left/cuke4duke-maven-plugin-0.1.2-jar-with-dependencies.jar:/path/mergedataset/cucumber-jvm/4505c156b6267c1b760deec570ddbfe047b42aa9/transformed/left/parent-0.1.2-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/cucumber-jvm/4505c156b6267c1b760deec570ddbfe047b42aa9/transformed/right/cuke4duke-0.1.2-jar-with-dependencies.jar:/path/mergedataset/cucumber-jvm/4505c156b6267c1b760deec570ddbfe047b42aa9/transformed/right/cuke4duke-maven-plugin-0.1.2-jar-with-dependencies.jar:/path/mergedataset/cucumber-jvm/4505c156b6267c1b760deec570ddbfe047b42aa9/transformed/right/parent-0.1.2-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/cucumber-jvm/4505c156b6267c1b760deec570ddbfe047b42aa9/transformed/merge/cuke4duke-0.1.2-jar-with-dependencies.jar:/path/mergedataset/cucumber-jvm/4505c156b6267c1b760deec570ddbfe047b42aa9/transformed/merge/cuke4duke-maven-plugin-0.1.2-jar-with-dependencies.jar:/path/mergedataset/cucumber-jvm/4505c156b6267c1b760deec570ddbfe047b42aa9/transformed/merge/parent-0.1.2-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "hector",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "me.prettyprint.cassandra.connection.HConnectionManager": [
+        {
+          "method": "operateWithFailover(me.prettyprint.cassandra.service.Operation)",
+          "leftChangesSummary": "Left changes the method used to write in the logger.",
+          "rightChangesSummary": "Right changes the initialization of the local variable stopWatch"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/hector/213f7887ea70eabdf0705cf8454de29af89e8c38/transformed/base/hector-core-0.8.0-1-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/hector/213f7887ea70eabdf0705cf8454de29af89e8c38/transformed/left/hector-core-0.8.0-1-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/hector/213f7887ea70eabdf0705cf8454de29af89e8c38/transformed/right/hector-core-0.8.0-1-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/hector/213f7887ea70eabdf0705cf8454de29af89e8c38/transformed/merge/hector-core-0.8.0-1-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "hector",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "me.prettyprint.cassandra.connection.client.HSaslThriftClient": [
+        {
+          "method": "open()",
+          "leftChangesSummary": "Left does a refactoring regarding the value assigned to the local variable socket and adding a parameter when creating the object transport",
+          "rightChangesSummary": "Right remove a If statement, which changed the value assigned to transport"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/hector/0588608e7a2bdf974c985ff546207104f672bf6c/transformed/base/hector-core-1.1-2-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/hector/0588608e7a2bdf974c985ff546207104f672bf6c/transformed/left/hector-core-1.1-2-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/hector/0588608e7a2bdf974c985ff546207104f672bf6c/transformed/right/hector-core-1.1-3-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/hector/0588608e7a2bdf974c985ff546207104f672bf6c/transformed/merge/hector-core-1.1-3-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "hector",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "me.prettyprint.cassandra.connection.client.HKerberosThriftClient": [
+        {
+          "method": "open()",
+          "leftChangesSummary": "Left does a refactoring regarding the value assigned to the local variable socket",
+          "rightChangesSummary": "Right remove a If statement, which changed the value assigned to transport"
+        }
+      ],
+      "me.prettyprint.cassandra.connection.client.HThriftClient": [
+        {
+          "method": "open()",
+          "leftChangesSummary": "Left does a refactoring regarding the value assigned to the local variable socket and adding a parameter when creating the object transport",
+          "rightChangesSummary": "Right remove a If statement, which changed the value assigned to transport"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/hector/a33a46506656a39d1b0f7780973905665d3b6145/transformed/base/hector-core-1.1-2-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/hector/a33a46506656a39d1b0f7780973905665d3b6145/transformed/left/hector-core-1.1-2-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/hector/a33a46506656a39d1b0f7780973905665d3b6145/transformed/right/hector-core-1.1-3-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/hector/a33a46506656a39d1b0f7780973905665d3b6145/transformed/merge/hector-core-1.1-3-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "elasticsearch-river-mongodb",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.elasticsearch.river.mongodb.Slurper": [
+        {
+          "method": "assignCollections()",
+          "leftChangesSummary": "Left adds some if statements and changed the values of two variables: adminDb and oplogDb.",
+          "rightChangesSummary": "Right changes the value of oplogRefsCollection by calling a method of oplogDb"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/elasticsearch-river-mongodb/3d4f99516ba3177f7d88a1f600923138a8b77cc8/transformed/base/elasticsearch-river-mongodb-2.0.2-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/elasticsearch-river-mongodb/3d4f99516ba3177f7d88a1f600923138a8b77cc8/transformed/left/elasticsearch-river-mongodb-2.0.2-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/elasticsearch-river-mongodb/3d4f99516ba3177f7d88a1f600923138a8b77cc8/transformed/right/elasticsearch-river-mongodb-2.0.2-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/elasticsearch-river-mongodb/3d4f99516ba3177f7d88a1f600923138a8b77cc8/transformed/merge/elasticsearch-river-mongodb-2.0.2-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "elasticsearch-river-mongodb",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.elasticsearch.river.mongodb.MongoDBRiverDefinition": [
+        {
+          "method": "parseSettings(String, String, org.elasticsearch.river.RiverSettings, org.elasticsearch.script.ScriptService)",
+          "leftChangesSummary": "Left changes the local object builder, which is used as the returning object.",
+          "rightChangesSummary": "Right replaces the method used to write in the object logger."
+        }
+      ],
+      "org.elasticsearch.river.mongodb.Indexer": [
+        {
+          "method": "applyAdvancedTransformation(org.elasticsearch.river.mongodb.MongoDBRiver$QueueEntry, String)",
+          "leftChangesSummary": "Left changes the local object builder, which is used as the returning object.",
+          "rightChangesSummary": "Right replaces the method used to write in the object logger."
+        },
+        {
+          "method": "processBlockingQueue(org.elasticsearch.river.mongodb.MongoDBRiver$QueueEntry)",
+          "leftChangesSummary": "Left adds a new parameter used to create the local object executableScript.",
+          "rightChangesSummary": "Right replaces the method used to write in the object logger and the value assigned to the local object ctx."
+        }
+      ],
+      "org.elasticsearch.river.mongodb.Slurper": [
+        {
+          "method": "run()",
+          "leftChangesSummary": "Left adds a if statement, restricting the value assigned to startTimestamp to be increased.",
+          "rightChangesSummary": "Right replaces the method used to write in the object logger."
+        },
+        {
+          "method": "addToStream(org.elasticsearch.river.mongodb.Operation, org.elasticsearch.river.mongodb.Timestamp<?>, com.mongodb.DBObject, String)",
+          "leftChangesSummary": "Left writes in the object logger.",
+          "rightChangesSummary": "Right writes in the object logger."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/elasticsearch-river-mongodb/6b6ce8e851c6613213c4508c3f277a80649e0c7b/transformed/base/elasticsearch-river-mongodb-2.0.1-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/elasticsearch-river-mongodb/6b6ce8e851c6613213c4508c3f277a80649e0c7b/transformed/left/elasticsearch-river-mongodb-2.0.2-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/elasticsearch-river-mongodb/6b6ce8e851c6613213c4508c3f277a80649e0c7b/transformed/right/elasticsearch-river-mongodb-2.0.1-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/elasticsearch-river-mongodb/6b6ce8e851c6613213c4508c3f277a80649e0c7b/transformed/merge/elasticsearch-river-mongodb-2.0.2-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "elasticsearch",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.elasticsearch.index.query.support.NestedInnerQueryParseSupport": [
+        {
+          "method": "setPathLevel()",
+          "leftChangesSummary": "Left adds a new field, and use it to assign values for fields parentFilter and parentObjectMapper; it has the same behavior when compared to base commit.",
+          "rightChangesSummary": "Right changes the value assigned to childFilter"
+        }
+      ],
+      "org.elasticsearch.index.query.MultiMatchQueryBuilder": [
+        {
+          "method": "doXContent(org.elasticsearch.common.xcontent.XContentBuilder| org.elasticsearch.common.xcontent.ToXContent$Params)",
+          "leftChangesSummary": "Changed the parameter sent to the startObject method but the value of the parameter remained the same; Removed two if conditions that made calls to the field method by passing (\"boost\", boost) and (\"_name\", queryName). Added a call to the printBoostAndQueryName method passing the builder object as a parameter.",
+          "rightChangesSummary": "Removed an if condition (rewrite! = Null) that used the field method of the builder object"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/elasticsearch/59cb67c7bd0ab6311115b20954e013412b676b29/transformed/base/elasticsearch-2.1.0-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/elasticsearch/59cb67c7bd0ab6311115b20954e013412b676b29/transformed/left/elasticsearch-2.1.0-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/elasticsearch/59cb67c7bd0ab6311115b20954e013412b676b29/transformed/right/elasticsearch-2.1.0-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/elasticsearch/59cb67c7bd0ab6311115b20954e013412b676b29/transformed/merge/elasticsearch-2.1.0-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "elasticsearch",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.elasticsearch.index.query.SimpleIndexQueryParserTests": [
+        {
+          "method": "setup()",
+          "leftChangesSummary": "Left set the fields type and id on the local variable doc.",
+          "rightChangesSummary": "Right adds a new entry on the local obecjt settings."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/elasticsearch/36884807b3cc9d660db4da062275c7fdbec8ba67/transformed/base/elasticsearch-2.0.0-SNAPSHOT-jar-with-dependencies.jar",
+      "left": "/path/mergedataset/elasticsearch/36884807b3cc9d660db4da062275c7fdbec8ba67/transformed/left/elasticsearch-2.0.0-SNAPSHOT-jar-with-dependencies.jar",
+      "right": "/path/mergedataset/elasticsearch/36884807b3cc9d660db4da062275c7fdbec8ba67/transformed/right/elasticsearch-2.0.0-SNAPSHOT-jar-with-dependencies.jar",
+      "merge": "/path/mergedataset/elasticsearch/36884807b3cc9d660db4da062275c7fdbec8ba67/transformed/merge/elasticsearch-2.0.0-SNAPSHOT-jar-with-dependencies.jar:/path/mergedataset/elasticsearch/36884807b3cc9d660db4da062275c7fdbec8ba67/transformed/merge/elasticsearch-2.1.0-jar-with-dependencies.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "elasticsearch",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.elasticsearch.common.settings.IndexScopedSettings": [
+        {
+          "method": "BUILT_IN_INDEX_SETTINGS",
+          "leftChangesSummary": "Added two elements to a set is a static attribute named BUILT_IN_INDEX_SETTINGS initialization",
+          "rightChangesSummary": "Added one element to a set is a static attribute named BUILT_IN_INDEX_SETTINGS initialization"
+        }
+      ],
+      "org.elasticsearch.action.index.TransportIndexAction": [
+        {
+          "method": "executeIndexRequestOnPrimary(org.elasticsearch.action.index.IndexRequest| org.elasticsearch.index.shard.IndexShard| org.elasticsearch.cluster.action.index.MappingUpdatedAction)",
+          "leftChangesSummary": "Added a call to a set method \"seqNo\", and passed the value as a parameter to the IndexResponse constructor",
+          "rightChangesSummary": "Extract variable on the object created by the IndexResponse constructor"
+        }
+      ],
+      "org.elasticsearch.action.support.replication.ReplicationOperationTests": [
+        {
+          "method": "testReplication()",
+          "leftChangesSummary": "Extracted a variable from constructor TestReplicationOperation creating a TestPrimary object (Refactor) and added two assertThat method calls on the end of the method",
+          "rightChangesSummary": "Changed the generic used at the PlainActionFuture type on the listener variable and Changed the type of shardInfo to import directly the inner ShartInfo, instead as accessing it from its outer class "
+        }
+      ],
+      "org.elasticsearch.index.IndexSettings": [
+        {
+          "method": "IndexSettings(org.elasticsearch.cluster.metadata.IndexMetaData| org.elasticsearch.common.settings.Settings| java.util.function.Predicate| org.elasticsearch.common.settings.IndexScopedSettings)",
+          "leftChangesSummary": "Added the initialization to the globalCheckPointInterval field getting from scopedSettings map",
+          "rightChangesSummary": "Added the initialization to the maxRefreshListeners field getting from scopedSettings map and added a call to addSettingsUpdateConsumer for the key that got the maxRefreshListeners"
+        }
+      ],
+      "org.elasticsearch.action.bulk.TransportShardBulkAction": [
+        {
+          "method": "update(org.elasticsearch.cluster.metadata.IndexMetaData| org.elasticsearch.action.bulk.BulkShardRequest| org.elasticsearch.index.shard.IndexShard| long[]| org.elasticsearch.index.VersionType| org.elasticsearch.index.translog.Translog$Location| int| org.elasticsearch.action.bulk.BulkItemRequest)",
+          "leftChangesSummary": "Added the parameter seqNo to both calls of the UpdateResopnse constructor",
+          "rightChangesSummary": "Added a SupressWarning annotation twice and refactored the WriteResult class to return its parameters via getResponse and getLocation (Refactor)"
+        }
+      ],
+      "org.elasticsearch.action.support.replication.TransportReplicationAction": [
+        {
+          "method": "doRun()",
+          "leftChangesSummary": "Left creates a new local variable, and assigns a value to it depending on a try, which was also changed by Left.",
+          "rightChangesSummary": "Right adds a new local variable and assings a value to it inside a try, which was chaged by Left."
+        }
+      ],
+      "org.elasticsearch.action.support.replication.ReplicationOperation": [
+        {
+          "method": "execute()",
+          "leftChangesSummary": "Left creates a new local variable primaryRounting, while it also adds a new call for updateLocalCheckpointForShard on the field primary.",
+          "rightChangesSummary": "Right creates a new local variable primaryRounting and renames the local variable primaryId. It also adds a new call for replicaRequest on the field primaryResult."
+        }
+      ],
+      "org.elasticsearch.index.engine.InternalEngineTests": [
+        {
+          "method": "testRecoverFromForeignTranslog()",
+          "leftChangesSummary": "Left updates the method call for creating a new Index object. Now, it is also assigned a value for field seqNo.",
+          "rightChangesSummary": "Right updates the method call for creating a new EngineConfig object. Now, it is also assigned a value for field refreshListeners."
+        }
+      ],
+      "org.elasticsearch.index.engine.InternalEngine": [
+        {
+          "method": "InternalEngine(org.elasticsearch.index.engine.EngineConfig)",
+          "leftChangesSummary": "Left adds a new field in the class, and also assigns a value for it in the constructor.",
+          "rightChangesSummary": "Right adds a new IF statement, which whether a property on the object engineConfig is nulll."
+        }
+      ],
+      "org.elasticsearch.action.DocWriteResponse": [
+        {
+          "method": "writeTo(org.elasticsearch.common.io.stream.StreamOutput)",
+          "leftChangesSummary": "Left adds a call for method writeZLong on the out object sending a long value.",
+          "rightChangesSummary": "Right adds a call for method writeBoolean on the object out sending a boolean value."
+        },
+        {
+          "method": "readFrom(org.elasticsearch.common.io.stream.StreamInput)",
+          "leftChangesSummary": "Left adds a call for method readZLong on the in object.",
+          "rightChangesSummary": "Right adds a call for method readBoolean on the object in."
+        },
+        {
+          "method": "toXContent(org.elasticsearch.common.xcontent.XContentBuilder| org.elasticsearch.common.xcontent.ToXContent$Params)",
+          "leftChangesSummary": "Left adds two calls for method field on the object builder.",
+          "rightChangesSummary": "Right adds a call for method field on the object builder."
+        }
+      ],
+      "org.elasticsearch.cluster.metadata.MetaDataCreateIndexService": [
+        {
+          "method": "createIndex(org.elasticsearch.action.admin.indices.create.CreateIndexClusterStateUpdateRequest| org.elasticsearch.action.ActionListener<ClusterStateUpdateResponse>)",
+          "leftChangesSummary": "Left adds two new parameters when creating the local variable indexService.",
+          "rightChangesSummary": "Right extracts a local variable (refactoring) and also adds a new local variable routingNumShards."
+        }
+      ],
+      "org.elasticsearch.action.update.TransportUpdateAction": [
+        {
+          "method": "shardOperation(org.elasticsearch.action.update.UpdateRequest| org.elasticsearch.action.ActionListener| int)",
+          "leftChangesSummary": "Left adds new parameters when creating the local variable update.",
+          "rightChangesSummary": "Right sets the field forcedRefresh of the local variable update"
+        }
+      ],
+      "org.elasticsearch.action.delete.TransportDeleteAction": [
+        {
+          "method": "executeDeleteRequestOnPrimary(org.elasticsearch.action.delete.DeleteRequest| org.elasticsearch.index.shard.IndexShard)",
+          "leftChangesSummary": "Left sets the field seqNo on object request, and added this value on the call to create the returned object DeleteResponse.",
+          "rightChangesSummary": "Right does a refactoring by extracting a variable, and them call the method to create the method return object."
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/elasticsearch/d896886973660785aac45275ddb110c1a6babc57/transformed/base/core-all-5.0.0-SNAPSHOT.jar",
+      "left": "/path/mergedataset/elasticsearch/d896886973660785aac45275ddb110c1a6babc57/transformed/left/core-all-5.0.0-SNAPSHOT.jar",
+      "right": "/path/mergedataset/elasticsearch/d896886973660785aac45275ddb110c1a6babc57/transformed/right/core-all-5.0.0-SNAPSHOT.jar",
+      "merge": "/path/mergedataset/elasticsearch/d896886973660785aac45275ddb110c1a6babc57/transformed/merge/core-all-5.0.0-SNAPSHOT.jar"
+    },
+    "jarType": "transformed"
+  },
+  {
+    "projectName": "elasticsearch",
+    "runAnalysis": true,
+    "scenarioCommits": {
+      "base": "",
+      "left": "",
+      "right": "",
+      "merge": ""
+    },
+    "targets": {
+      "org.elasticsearch.index.analysis.synonyms.SynonymsAnalysisTest": [
+        {
+          "method": "testSynonymsAnalysis()",
+          "leftChangesSummary": "Left extracts a local variable home of the parameter used on method put. Now, it's used the return of createTempDir instead of createTempDir().toString();",
+          "rightChangesSummary": "Right extracts a local variable json from the parameter sent to method loadFromStream. It also replaced the method call loadFromClasspath to loadFromStream, which is done by the method return object of settingsBuilder."
+        }
+      ],
+      "org.elasticsearch.index.analysis.commongrams.CommonGramsTokenFilterFactoryTests": [
+        {
+          "method": "testQueryModeCommonGramsAnalysis()",
+          "leftChangesSummary": "Replaced the call to the createTempDir().toString() method with createHome()",
+          "rightChangesSummary": "Added a variable called Json containing a String with the path to the file commongrams_query_mode.json; Replaced the loadFromClasspath method with loadFromStream"
+        },
+        {
+          "method": "testCommonGramsAnalysis()",
+          "leftChangesSummary": "Left changed the local settings variable with a call to put() method in settingsBuilder(), which uses the local variable called \"json\" changed by right.",
+          "rightChangesSummary": "Right changed the local variable json. Changed the local varibale called settings with a call to loadFromStream() method in settingsBuilder()"
+        }
+      ],
+      "org.elasticsearch.index.analysis.KuromojiAnalysisTests": [
+        {
+          "method": "createAnalysisService()",
+          "leftChangesSummary": "Left changed the local settings variable with a call to put() method in settingsBuilder(), which uses the local variable called \"json\" changed by right. Changed other local variables: empty_dict, dict, home, config and Files, not used by right. ",
+          "rightChangesSummary": "Right changed the local variable json. Changed the local varibale called settings with a call to loadFromStream() method in settingsBuilder()"
+        }
+      ]
+    },
+    "scenarioJars": {
+      "base": "/path/mergedataset/elasticsearch/f3d63095dbcc985e24162fbac4ee0d6914dc757d/transformed/base/elasticsearch-2.0.0-SNAPSHOT-fat-tests.jar",
+      "left": "/path/mergedataset/elasticsearch/f3d63095dbcc985e24162fbac4ee0d6914dc757d/transformed/left/elasticsearch-2.0.0-SNAPSHOT-fat-tests.jar",
+      "right": "/path/mergedataset/elasticsearch/f3d63095dbcc985e24162fbac4ee0d6914dc757d/transformed/right/elasticsearch-2.0.0-SNAPSHOT-fat-tests.jar",
+      "merge": "/path/mergedataset/elasticsearch/f3d63095dbcc985e24162fbac4ee0d6914dc757d/transformed/merge/elasticsearch-2.0.0-SNAPSHOT-fat-tests.jar"
+    },
+    "jarType": "transformed"
+  }
+]
