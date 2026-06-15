@@ -82,9 +82,9 @@ class Api:
             return {"error": "Output generation error", "total_duration": self.timeout_seconds * 1_000_000_000}
         
 
-class CodellamaTestSuiteGenerator(TestSuiteGenerator):
+class OllamaTestSuiteGenerator(TestSuiteGenerator):
 
-    def __init__(self, java_tool, model_key: str = "codellama", model_config: Dict[str, Any] = None):
+    def __init__(self, java_tool, model_key: str = "ollama", model_config: Dict[str, Any] = None):
         super().__init__(java_tool)
         self.model_key = model_key
         self.model_config = model_config or {}
@@ -158,7 +158,7 @@ class CodellamaTestSuiteGenerator(TestSuiteGenerator):
             timeout_seconds=model_params.get("timeout_seconds", 60),
             temperature=model_params.get("temperature", 0),
             seed=model_params.get("seed", 42),
-            model=model_params.get("model", "codellama:70b")
+            model=model_params.get("model", "ollama:70b")
         )
 
     def get_generator_tool_name(self) -> str:

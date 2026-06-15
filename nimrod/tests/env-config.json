@@ -8,7 +8,7 @@
   "path_output_csv": "",
   "logger_level": "DEBUG",
   "test_suite_generators": [
-    "codellama"
+    "ollama"
   ],
   "test_suite_generation_search_time_available": "45",
   "prompt_template": "zero_shot",

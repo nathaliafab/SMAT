@@ -16,7 +16,7 @@ from nimrod.test_suite_generation.generators.test_suite_generator import TestSui
 from nimrod.test_suite_generation.generators.randoop_test_suite_generator import RandoopTestSuiteGenerator
 from nimrod.test_suite_generation.generators.evosuite_differential_test_suite_generator import EvosuiteDifferentialTestSuiteGenerator
 from nimrod.test_suite_generation.generators.evosuite_test_suite_generator import EvosuiteTestSuiteGenerator
-from nimrod.test_suite_generation.generators.codellama_test_suite_generator import CodellamaTestSuiteGenerator
+from nimrod.test_suite_generation.generators.ollama_test_suite_generator import OllamaTestSuiteGenerator
 from nimrod.test_suite_generation.generators.project_test_suite_generator import ProjectTestSuiteGenerator
 from nimrod.test_suites_execution.main import TestSuitesExecution, TestSuiteExecutor
 from nimrod.tools.bin import MOD_RANDOOP, RANDOOP
@@ -35,7 +35,7 @@ def get_llm_test_suite_generators(config: Dict[str, str]) -> List[TestSuiteGener
   
   for model_key, model_config in api_params.items():
     # Create a generator for each configured model
-    generator = CodellamaTestSuiteGenerator(Java(), model_key, model_config)
+    generator = OllamaTestSuiteGenerator(Java(), model_key, model_config)
     generators.append(generator)
     
   return generators
@@ -43,7 +43,7 @@ def get_llm_test_suite_generators(config: Dict[str, str]) -> List[TestSuiteGener
 
 def get_test_suite_generators(config: Dict[str, str]) -> List[TestSuiteGenerator]:
   config_generators = config.get(
-      'test_suite_generators', ['randoop', 'randoop-modified', 'evosuite', 'evosuite-differential', 'codellama', 'project'])
+      'test_suite_generators', ['randoop', 'randoop-modified', 'evosuite', 'evosuite-differential', 'ollama', 'project'])
   generators: List[TestSuiteGenerator] = list()
 
   if 'randoop' in config_generators:
@@ -55,7 +55,7 @@ def get_test_suite_generators(config: Dict[str, str]) -> List[TestSuiteGenerator
     generators.append(EvosuiteTestSuiteGenerator(Java()))
   if 'evosuite-differential' in config_generators:
     generators.append(EvosuiteDifferentialTestSuiteGenerator(Java()))
-  if 'codellama' in config_generators:
+  if 'ollama' in config_generators:
     # Create one generator for each configured model
     generators.extend(get_llm_test_suite_generators(config))
   if 'project' in config_generators:

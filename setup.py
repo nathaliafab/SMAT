@@ -25,7 +25,7 @@ setup(
         'argparse==1.4.0',
         'beautifulsoup4==4.6.0',
         'pygithub==2.5.0',
-        'gitpython==3.1.41'
+        'gitpython==3.1.50'
     ],
     test_suite='nose.collector',
     tests_require=[
