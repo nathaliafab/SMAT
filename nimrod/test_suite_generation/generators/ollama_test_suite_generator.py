@@ -84,10 +84,10 @@ class Api:
 
 class OllamaTestSuiteGenerator(TestSuiteGenerator):
 
-    def __init__(self, java_tool, model_key: str = "codellama", model_config: Dict[str, Any] = None):
+    def __init__(self, java_tool, model_key: str = "codellama", model_config: Dict[str, Any] = {}):
         super().__init__(java_tool)
         self.model_key = model_key
-        self.model_config = model_config or {}
+        self.model_config = model_config
         self.api: Optional[Api] = None
         self.prompt_manager = PromptManager()
         self.output_processor = LLMOutputProcessor()

@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List
+from typing import Dict, List, Any
 from nimrod.dynamic_analysis.behavior_change_checker import BehaviorChangeChecker
 from nimrod.dynamic_analysis.criteria.first_semantic_conflict_criteria import FirstSemanticConflictCriteria
 from nimrod.dynamic_analysis.criteria.second_semantic_conflict_criteria import SecondSemanticConflictCriteria
@@ -25,7 +25,7 @@ from nimrod.tools.jacoco import Jacoco
 from nimrod.input_parsing.input_parser import CsvInputParser, JsonInputParser
 
 
-def get_llm_test_suite_generators(config: Dict[str, str]) -> List[TestSuiteGenerator]:
+def get_llm_test_suite_generators(config: Dict[str, Any]) -> List[TestSuiteGenerator]:
   """
   Creates test suite generators for all available LLM models configured in api_params.
   Each model gets its own generator instance to enable parallel processing and comparison.
