@@ -47,5 +47,9 @@ def load_json(file_path):
 
 def save_json(file_path, content):
     """Saves a dictionary as a JSON file"""
-    with open(file_path, "w") as file:
-        json.dump(content, file, indent=4)
+    try:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, "w") as file:
+            json.dump(content, file, indent=4)
+    except (OSError, IOError) as e:
+        print(f"Error saving JSON to {file_path}: {e}")
