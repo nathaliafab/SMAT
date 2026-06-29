@@ -72,7 +72,6 @@ class Api:
         try:
             self.set_payload_messages(messages)
             response = self.post(self.payload)
-            #logging.debug("Response: %s", response)
             return {
                 "response": response.get("message", {}).get("content", "Response not found."),
                 "total_duration": response.get("total_duration", self.timeout_seconds * 1_000_000_000),
@@ -80,7 +79,7 @@ class Api:
         except Exception as e:
             logging.error(f"Error generating output: {e}")
             return {"error": "Output generation error", "total_duration": self.timeout_seconds * 1_000_000_000}
-        
+
 
 class OllamaTestSuiteGenerator(TestSuiteGenerator):
 
@@ -103,7 +102,7 @@ class OllamaTestSuiteGenerator(TestSuiteGenerator):
         )
         
         logging.info(f"Initialized {self.model_key} with prompt template: {self.prompt_template}")
-    
+
     def generate_messages_list(self, method_info: Dict[str, str], full_class_name: str,
                                branch: str, output_path: str) -> Dict[str, List[Dict[str, str]]]:
         """
@@ -114,7 +113,7 @@ class OllamaTestSuiteGenerator(TestSuiteGenerator):
         api.set_branch(branch)  # Set the branch
         class_name = full_class_name.split('.')[-1]
         method_name = method_info.get("method_name", "")
-        
+
         logging.debug(f"Generating messages for {class_name}.{method_name} using template: {self.prompt_template}")
 
         # Generates messages using the PromptManager
@@ -124,7 +123,7 @@ class OllamaTestSuiteGenerator(TestSuiteGenerator):
             branch=branch,
             template_name=self.prompt_template
         )
-        
+
         # Saves generated messages
         self.prompt_manager.save_generated_messages(
             messages_dict=messages_dict,
@@ -132,7 +131,7 @@ class OllamaTestSuiteGenerator(TestSuiteGenerator):
             class_name=class_name,
             method_name=method_name
         )
-        
+
         logging.info(f"Generated {len(messages_dict)} prompt variations for {class_name}.{method_name}")
 
         return messages_dict

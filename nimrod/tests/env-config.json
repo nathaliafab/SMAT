@@ -1,79 +1,22 @@
 {
-  "java_home": "/usr/lib/jvm/java-8-openjdk-amd64",
+  "java_home": "",
   "maven_home": "",
+
   "repo_dir": "",
   "projects_folder": "",
-  "input_path": "/path/input-smat.json",
+  "input_path": "",
   "tests_dst": "",
   "path_output_csv": "",
   "logger_level": "DEBUG",
-  "test_suite_generators": [
-    "ollama"
-  ],
-  "test_suite_generation_search_time_available": "45",
+  "test_suite_generators":["ollama", "evosuite", "randoop"],
+  "test_suite_generation_search_time_available":"45",
   "prompt_template": "zero_shot",
   "api_params": {
-    "deepseek-r1-8b": {
-      "model": "deepseek-r1:8b",
+    "codellama-70b": {
+      "model": "codellama:70b",
       "api_url": "http://ip/api/chat",
-      "temperature": 0,
-      "seed": 123,
-      "timeout_seconds": 300
-    },
-    "deepseek-r1-70b": {
-      "model": "deepseek-r1:70b",
-      "api_url": "http://ip/api/chat",
-      "temperature": 0,
-      "seed": 123,
-      "timeout_seconds": 300
-    },
-    "deepseek-r1-32b": {
-      "model": "deepseek-r1:32b",
-      "api_url": "http://ip/api/chat",
-      "temperature": 0,
-      "seed": 123,
-      "timeout_seconds": 300
-    },
-    "gemma3-27b": {
-      "model": "gemma3:27b",
-      "api_url": "http://ip/api/chat",
-      "temperature": 0,
-      "seed": 123,
-      "timeout_seconds": 300
-    },
-    "gemma3-12b": {
-      "model": "gemma3:12b",
-      "api_url": "http://ip/api/chat",
-      "temperature": 0,
-      "seed": 123,
-      "timeout_seconds": 300
-    },
-    "gemma3-4b": {
-      "model": "gemma3:4b",
-      "api_url": "http://ip/api/chat",
-      "temperature": 0,
-      "seed": 123,
-      "timeout_seconds": 300
-    },
-    "qwen3-32b": {
-      "model": "qwen3:32b",
-      "api_url": "http://ip/api/chat",
-      "temperature": 0,
-      "seed": 123,
-      "timeout_seconds": 300
-    },
-    "qwen3-30b": {
-      "model": "qwen3:30b",
-      "api_url": "http://ip/api/chat",
-      "temperature": 0,
-      "seed": 123,
-      "timeout_seconds": 300
-    },
-    "llama4-16x17b": {
-      "model": "llama4:16x17b",
-      "api_url": "http://ip/api/chat",
-      "temperature": 0,
-      "seed": 123,
+      "temperature": 0.7,
+      "seed": 42,
       "timeout_seconds": 300
     }
   }
